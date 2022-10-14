@@ -1,0 +1,8 @@
+*.o
+*.out
+*.d
+*.log
+*.ii
+vgcore*
+*.asm
+*.bin

@@ -1,0 +1,15 @@
+
+CPU_AUTO (CMD_PUSH, "push", AsmOneArgCommand, );
+CPU_AUTO (CMD_POP,  "pop",  AsmZeroArgCommand,); 
+CPU_AUTO (CMD_ADD,  "add",  AsmZeroArgCommand,); 
+CPU_AUTO (CMD_SUB,  "sub",  AsmZeroArgCommand,); 
+CPU_AUTO (CMD_MUL,  "mul",  AsmZeroArgCommand,); 
+CPU_AUTO (CMD_DIV,  "div",  AsmZeroArgCommand,); 
+CPU_AUTO (CMD_OUT,  "out",  AsmZeroArgCommand,); 
+CPU_AUTO (CMD_HLT,  "hlt",  AsmZeroArgCommand,); 
+CPU_AUTO (CMD_JB,   "jb",   AsmJumpCommand,   );
+CPU_AUTO (CMD_JBE,  "jbe",  AsmJumpCommand,   );
+CPU_AUTO (CMD_JA,   "ja",   AsmJumpCommand,   );
+CPU_AUTO (CMD_JAE,  "jae",  AsmJumpCommand,   );
+CPU_AUTO (CMD_JE,   "je",   AsmJumpCommand,   );
+CPU_AUTO (CMD_JNE,  "jne",  AsmJumpCommand,   );
