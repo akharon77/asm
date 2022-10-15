@@ -1,10 +1,11 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <fcntl.h>
+#include <unistd.h>
 #include <string.h>
 #include "iostr.h"
 #include "asm.h"
-#include "prog_mark.h"
+#include "cmds.h"
 
 int main(int argc, const char* argv[])
 {
@@ -31,10 +32,23 @@ int main(int argc, const char* argv[])
 
         sscanf(text.lines[i].ptr, "%s%n", cmd, &offset);
 
+#define CMD_DEF(name
+        if (strcasecmp(cmd, #name) == 0)
+        {
+            *((CMD_CONT_TYPE*) (buf + instr_ptr)) = name;
+            instr_ptr += BYTES_CMD;
+
+            if (arg)
+            {
+                CMD_FLAGS_TYPE
+                VAL_TYPE val = AsmParseArg(cmd + offset, &flags);
+            }
+        }
+
         if (strcasecmp(cmd, "push") == 0)
         {
             *((int16_t*) (buf + instr_ptr)) = CMD_PUSH;
-            instr_ptr += BYTES_COMMAND;
+            instr_ptr += BYTES_CMD;
 
             int32_t val = 0;
             sscanf(text.lines[i].ptr + offset, "%d", &val);
@@ -46,72 +60,78 @@ int main(int argc, const char* argv[])
         else if (strcasecmp(cmd, "pop") == 0)
         {
             *((int16_t*) (buf + instr_ptr)) = CMD_POP;
-            instr_ptr += BYTES_COMMAND;
+            instr_ptr += BYTES_CMD;
         }
         else if (strcasecmp(cmd, "add") == 0)
         {
             *((int16_t*) (buf + instr_ptr)) = CMD_ADD;
-            instr_ptr += BYTES_COMMAND;
+            instr_ptr += BYTES_CMD;
         }
         else if (strcasecmp(cmd, "sub") == 0)
         {
             *((int16_t*) (buf + instr_ptr)) = CMD_SUB;
-            instr_ptr += BYTES_COMMAND;
+            instr_ptr += BYTES_CMD;
         }
         else if (strcasecmp(cmd, "mul") == 0)
         {
             *((int16_t*) (buf + instr_ptr)) = CMD_MUL;
-            instr_ptr += BYTES_COMMAND;
+            instr_ptr += BYTES_CMD;
         }
         else if (strcasecmp(cmd, "div") == 0)
         {
             *((int16_t*) (buf + instr_ptr)) = CMD_DIV;
-            instr_ptr += BYTES_COMMAND;
+            instr_ptr += BYTES_CMD;
         }
         else if (strcasecmp(cmd, "out") == 0)
         {
             *((int16_t*) (buf + instr_ptr)) = CMD_OUT;
-            instr_ptr += BYTES_COMMAND;
+            instr_ptr += BYTES_CMD;
         }
         else if (strcasecmp(cmd, "hlt") == 0)
         {
             *((int16_t*) (buf + instr_ptr)) = CMD_HLT;
-            instr_ptr += BYTES_COMMAND;
+            instr_ptr += BYTES_CMD;
         }
         else if (strcasecmp(cmd, "jb") == 0)
         {
             *((int16_t*) (buf + instr_ptr)) = CMD_JB;
-            instr_ptr += BYTES_COMMAND;
+            instr_ptr += BYTES_CMD;
             AsmLabelProcess(text.lines[i].ptr + offset, &labels_info, buf, &instr_ptr);
         }
         else if (strcasecmp(cmd, "jbe") == 0)
         {
             *((int16_t*) (buf + instr_ptr)) = CMD_JBE;
-            instr_ptr += BYTES_COMMAND;
+            instr_ptr += BYTES_CMD;
             AsmLabelProcess(text.lines[i].ptr + offset, &labels_info, buf, &instr_ptr);
         }
         else if (strcasecmp(cmd, "ja") == 0)
         {
             *((int16_t*) (buf + instr_ptr)) = CMD_JA;
-            instr_ptr += BYTES_COMMAND;
+            instr_ptr += BYTES_CMD;
             AsmLabelProcess(text.lines[i].ptr + offset, &labels_info, buf, &instr_ptr);
         }
         else if (strcasecmp(cmd, "jae") == 0)
         {
             *((int16_t*) (buf + instr_ptr)) = CMD_JAE;
-            instr_ptr += BYTES_COMMAND;
+            instr_ptr += BYTES_CMD;
             AsmLabelProcess(text.lines[i].ptr + offset, &labels_info, buf, &instr_ptr);
         }
         else if (strcasecmp(cmd, "je") == 0)
         {
             *((int16_t*) (buf + instr_ptr)) = CMD_JE;
-            instr_ptr += BYTES_COMMAND;
+            instr_ptr += BYTES_CMD;
             AsmLabelProcess(text.lines[i].ptr + offset, &labels_info, buf, &instr_ptr);
         }
         else if (strcasecmp(cmd, "jne") == 0)
         {
             *((int16_t*) (buf + instr_ptr)) = CMD_JNE;
-            instr_ptr += BYTES_COMMAND;
+            instr_ptr += BYTES_CMD;
+            AsmLabelProcess(text.lines[i].ptr + offset, &labels_info, buf, &instr_ptr);
+        }
+        else if (strcasecmp(cmd, "jmp") == 0)
+        {
+            *((int16_t*) (buf + instr_ptr)) = CMD_JMP;
+            instr_ptr += BYTES_CMD;
             AsmLabelProcess(text.lines[i].ptr + offset, &labels_info, buf, &instr_ptr);
         }
         else if (cmd[offset - 1] == ':')

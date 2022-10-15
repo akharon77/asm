@@ -1,41 +1,47 @@
 #ifndef CMDS_H
 #define CMDS_H
 
+#include <stdint.h>
+
+#define CMD_DEF(name) CMD_##name
 enum CMDS
 {
-    CMD_PUSH = 1,
-    CMD_POP,
-    CMD_ADD,
-    CMD_SUB,
-    CMD_MUL,
-    CMD_DIV,
-    CMD_OUT,
-    CMD_HLT,
-    CMD_JB,
-    CMD_JBE,
-    CMD_JA,
-    CMD_JAE,
-    CMD_JE,
-    CMD_JNE,
-    CMD_N
+#include "cmd_def.h"
 };
+#undef CMD_DEF
 
-const uint32_t BYTES_SIZE      = 4;
-const uint32_t BYTES_COMMAND   = 2;
-const uint32_t BYTES_VAL       = 4;
-const uint32_t BYTES_LABEL     = 4;
-const uint32_t BYTES_COM_FLAGS = 1;
-const uint32_t BYTES_COM_CONT  = 1;
+#define BITS_CMD       16  // 2 * 8
+#define BITS_CMD_FLAGS 8   // 1 * 8
+#define BITS_CMD_CONT  8   // 1 * 8
+#define BITS_VAL       32  // 4 * 8
+#define BITS_LBL       32  // 4 * 8
+#define BITS_SIZE      32  // 4 * 8
 
-const uint32_t IMM_IND         = 0;
-const uint32_t REG_IND         = 1;
-const uint32_t MEM_IND         = 2;
+#define CMD_TYPE         int##BITS_CMD##_t
+#define BYTES_CMD        sizeof(CMD_TYPE)
 
-const uint32_t COM_MASK        = 1 << (8 * BYTES_COM_CONT) - 1;
+#define CMD_CONT_TYPE    int##BITS_CMD_CONT##_t
+#define BYTES_CMD_CONT   sizeof(CMD_CONT_TYPE)
+#define CMD_MASK         ((1ull << 8 * BYTES_CMD_CONT) - 1)
 
-const uint32_t COM_IMM         = 1 << (8 * BYTES_COM_CONT + IMM_IND);
-const uint32_t COM_REG         = 1 << (8 * BYTES_COM_CONT + REG_IND);
-const uint32_t COM_MEM         = 1 << (8 * BYTES_COM_CONT + MEM_IND);
+#define CMD_FLAGS_TYPE   int##BITS_CMD_FLAGS##_t
+#define BYTES_CMD_FLAGS  sizeof(CMD_FLAGS_TYPE)
+
+#define VAL_TYPE         int##BITS_VAL##_t
+#define BYTES_VAL        sizeof(VAL_TYPE)
+
+#define LBL_TYPE         int##BITS_LBL##_t
+#define BYTES_LBL        sizeof(LBL_TYPE)
+
+#define IMM_IND          0
+#define CMD_IMM          (1ull << (8 * BYTES_CMD_CONT + IMM_IND))
+
+#define REG_IND          1
+#define CMD_REG          (1ull << (8 * BYTES_CMD_CONT + REG_IND))
+
+#define MEM_IND          2
+#define CMD_MEM          (1ull << (8 * BYTES_CMD_CONT + MEM_IND))
+
 
 #endif  // CMDS_H
  

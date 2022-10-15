@@ -156,7 +156,7 @@ ON_HASH_PROT(
 }
 
 ON_CANARY_PROT(
-    static void StackCanaryUpdate(Stack *stk)
+    void StackCanaryUpdate(Stack *stk)
     {
         ASSERT(!isBadPtr(stk));
         stk->data[-1]            = CANARY;
@@ -187,7 +187,7 @@ int64_t StackGetCoeff(Stack *stk)
     return 2; // TODO: formula
 }
 
-static const char* StackGetStatus(Stack *stk)
+const char* StackGetStatus(Stack *stk)
 {
     ASSERT(!isBadPtr(stk));
 

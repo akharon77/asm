@@ -27,7 +27,8 @@ struct LabelsInfo
     Fixup fixups[MAX_N_FIXUPS];
 };
 
-void AsmLabelProcess (const char* str_label, LabelsInfo *labels_info, char *buf, int *instr_ptr);
+// TODO: fix
+int32_t AsmLabelProcess (const char* str_label, LabelsInfo *labels_info, char *buf);
 void AsmLabelAdd     (const char *label_name, int pos, LabelsInfo *labels_info);
 void AsmFixLabels(char *buf, LabelsInfo *labels_info);
 
