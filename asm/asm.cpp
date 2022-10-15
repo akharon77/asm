@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "asm.h"
 #include "cmds.h"
+#include "iostr.h"
 
 LBL_TYPE AsmLabelProcess(LabelsInfo *labels_info, const char* str_label, int32_t instr_ptr)
 {
@@ -83,9 +84,27 @@ void LabelsInfoDtor(LabelsInfo *labels_info)
 
 VAL_TYPE AsmParseArg(const char *str, CMD_FLAGS_TYPE *flags)
 {
-    bool isRam = false;
+    char arg[MAX_LINE_LEN] = "";
+    int32_t len_arg = 0;
 
-    char arg[MAX_
-    sscanf
+    sscanf(arg, "%s%n", str, &len_arg);
+
+    bool is_ram = false;
+    if (arg[0] == '[')
+    {
+        is_ram = true;
+        arg[len_arg - 1] = '\0';
+    }
+
+    bool is_plus = false;
+    char *plus_ptr = strchr(arg, '+');
+    int32_t plus_pos = 0;
+    if (plus_ptr != NULL)
+    {
+        is_plus = true;
+        plus_pos = plus_ptr - arg;
+    }
+
+
 }
 
