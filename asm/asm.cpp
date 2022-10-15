@@ -4,65 +4,69 @@
 #include "asm.h"
 #include "cmds.h"
 
-int32_t AsmFindLabel(const char *str_label, LabelsInfo *labels_info)
+LBL_TYPE AsmLabelProcess(LabelsInfo *labels_info, const char* str_label, int32_t instr_ptr)
 {
-    char label_name[MAX_LABEL_LEN] = "";
-    sscanf(str_label, "%s", label_name);
+    LBL_TYPE label_id = AsmLabelGet(str_label, labels_info);
 
-    for (int i = 0; i < MAX_N_LABELS; ++i)
-        if (strcasecmp(labels_info->labels[i].name, label_name) == 0)
-            return labels_info->labels[i].pos;
-    return -1;
+    LBL_TYPE ret_pos = labels_info->labels[label_id].pos;
+
+    if (ret_pos == -1)
+        AsmFixupAdd(labels_info, str_label, instr_ptr);
+
+    return ret_pos;
 }
 
-int32_t AsmGetLabel(LabelInfo *labels_info, const char *str_label)
-
-int32_t AsmLabelProcess(const char* str_label, LabelsInfo *labels_info, char *buf)
+LBL_TYPE AsmFixupAdd(LabelsInfo *labels_info, const char *str_label, int32_t instr_ptr)
 {
-    int32_t label_id = AsmFindLabel(str_label, labels_info);
-    
-    if (label_id != -1)
-        return labels_info->labels[label_id].pos;
-
-    AsmLabelUpd(str_label, -1);
-
     labels_info->fixups[labels_info->n_fixups] = 
         {
             labels_info->n_labels,
             *instr_ptr
         };
 
-    *(int32_t*)(buf + *instr_ptr) = -1;
-
-    ++labels_info->n_labels;
     ++labels_info->n_fixups;
-
-    *instr_ptr += BYTES_LABEL;
 }
 
-void AsmLabelAdd(const char *label_name, LabelsInfo *labels_info)
+LBL_TYPE AsmLabelFind(LabelsInfo *labels_info, const char *str_label)
 {
-    strcpy(labels_info->labels[labels_info->n_labels].name, label_name);
+    char label_name[MAX_LABEL_LEN] = "";
+    sscanf(str_label, "%s", label_name);
+        if (strcasecmp(labels_info->labels[i].name, label_name) == 0)
+            return labels_info->labels[i].pos;
+
+    return -1;
+}
+
+void AsmLabelAdd(LabelsInfo *labels_info, const char *str_label, LBL_TYPE pos)
+{
+    strcpy(labels_info->labels[labels_info->n_labels].name, str_label);
     labels_info->labels[labels_info->n_labels].pos = pos;
     ++labels_info->n_labels;
 }
 
-void AsmLabelUpd(LabelsInfo *labels_info, const char *label_name, int pos)
+LBL_TYPE AsmLabelGet(LabelInfo *labels_info, const char *str_label)
 {
-    int32_t label_id = AsmFindLabel(label_name, labels_info);
+    LBL_TYPE label_id = AsmLabelFind(labels_info, str_label);
 
     if (label_id != -1)
-        AsmLabelAdd(label_name, labels_info);
-    else
-        labels_info->labels[label_id].pos = pos
+        return label_id;
+
+    AsmLabelAdd(labels_info, label_name, -1);
+    return labels_info->n_labels - 1;
 }
 
-void AsmFixLabels(LabelsInfo *labels_info, char *buf)
+void AsmLabelUpd(LabelsInfo *labels_info, const char *str_label, LBL_TYPE pos)
 {
-    for (int i = 0; i < labels_info->n_fixups; ++i)
+    LBL_TYPE label_id = AsmGetLabel(str_label, labels_info);
+    labels_info->labels[label_id].pos = pos;
+}
+
+void AsmDoFixups(LabelsInfo *labels_info, char *buf)
+{
+    for (int32_t i = 0; i < labels_info->n_fixups; ++i)
     {
-        int label_id = labels_info->fixups[i].label_id;
-        *((int32_t*) (buf + labels_info->fixups[i].pos)) = labels_info->labels[label_id].pos;
+        LBL_TYPE label_id = labels_info->fixups[i].label_id;
+        *((LBL_TYPE*) (buf + labels_info->fixups[i].pos)) = labels_info->labels[label_id].pos;
     }
 }
 
@@ -75,5 +79,13 @@ void LabelsInfoCtor(LabelsInfo *labels_info)
 void LabelsInfoDtor(LabelsInfo *labels_info)
 {
 
+}
+
+VAL_TYPE AsmParseArg(const char *str, CMD_FLAGS_TYPE *flags)
+{
+    bool isRam = false;
+
+    char arg[MAX_
+    sscanf
 }
 

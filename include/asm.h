@@ -1,38 +1,38 @@
 #ifndef ASM_H
 #define ASM_H
 
-const int MAX_PROG_SIZE = 1024,
-          MAX_N_LABELS  = 64,
-          MAX_N_FIXUPS  = 128,
-          MAX_LABEL_LEN = 16;
+#include "cmds.h"
 
 struct Label
 {
-    char name[MAX_LABEL_LEN];
-    int  pos;
+    char      name[MAX_LABEL_LEN];
+    LBL_TYPE  pos;
 };
 
 struct Fixup
 {
-    int label_id;
-    int pos;
+    int32_t  label_id;
+    LBL_TYPE pos;
 };
 
 struct LabelsInfo
 {
-    int   n_labels,
-          n_fixups;
+    int32_t n_labels;
+    int32_t n_fixups;
 
-    Label labels[MAX_N_LABELS];
-    Fixup fixups[MAX_N_FIXUPS];
+    Label   labels[MAX_N_LABELS];
+    Fixup   fixups[MAX_N_FIXUPS];
 };
 
-// TODO: fix
-int32_t AsmLabelProcess (const char* str_label, LabelsInfo *labels_info, char *buf);
-void AsmLabelAdd     (const char *label_name, int pos, LabelsInfo *labels_info);
-void AsmFixLabels(char *buf, LabelsInfo *labels_info);
+LBL_TYPE AsmLabelProcess (LabelsInfo *labels_info, const char* str_label, int32_t instr_ptr);
+LBL_TYPE AsmFixupAdd     (LabelsInfo *labels_info, const char *str_label, int32_t instr_ptr);
+LBL_TYPE AsmLabelFind    (LabelsInfo *labels_info, const char *str_label);
+void     AsmLabelAdd     (LabelsInfo *labels_info, const char *str_label, LBL_TYPE pos);
+LBL_TYPE AsmLabelGet     (LabelsInfo *labels_info, const char *str_label);
+void     AsmLabelUpd     (LabelsInfo *labels_info, const char *str_label, LBL_TYPE pos);
+void     AsmDoFixups     (LabelsInfo *labels_info, char *buf);
 
-void LabelsInfoCtor (LabelsInfo *labels_info);
-void LabelsInfoDtor (LabelsInfo *labels_info);
+void LabelsInfoCtor      (LabelsInfo *labels_info);
+void LabelsInfoDtor      (LabelsInfo *labels_info);
 
 #endif  // ASM_H
