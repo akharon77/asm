@@ -101,7 +101,7 @@ void initTextSep(TextInfo *text)
 
     for (size_t i = 0; i < text->size; ++i)
     {
-        if (isalnum(text->base[i]))
+        if (!isspace(text->base[i]))
             empty = false;
 
         if (text->base[i] == '\n')
@@ -128,20 +128,20 @@ void markOutText(TextInfo *text, int *err)
     text->lines = (Line*) calloc(text->nlines, sizeof(Line));
 
     bool isLine = false;
-    int lastAlnum = 0;
+    int lastNotSpace = 0;
     size_t currnLines = 0;
     for (int i = 0; i < (int) text->size; ++i)
     {
-        if (isalnum(text->base[i]) || text->base[i] == ':')  // TODO: :::::
-            lastAlnum = i;
+        if (!(isspace(text->base[i]) || text->base[i] == '\0'))
+            lastNotSpace = i;
 
         if (text->base[i] == '\0')
         {
-            text->base[lastAlnum + 1] = '\0';
-            text->lines[currnLines - 1].len = text->base + lastAlnum - text->lines[currnLines - 1].ptr + 1;
+            text->base[lastNotSpace + 1] = '\0';
+            text->lines[currnLines - 1].len = text->base + lastNotSpace - text->lines[currnLines - 1].ptr + 1;
             isLine = false;
         }
-        else if (!isLine && isalnum(text->base[i]))
+        else if (!isLine && !(isspace(text->base[i]) || text->base[i] == '\0'))
         {
             isLine = true;
             text->lines[currnLines].ptr = text->base + i;

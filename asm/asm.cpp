@@ -91,20 +91,20 @@ void LabelsInfoDtor(LabelsInfo *labels_info)
 
 }
 
-void AsmArgProcess(const char *str, CMD_FLAGS_TYPE *flags, char *buf, int32_t *instr_ptr)
+int32_t AsmArgProcess(const char *str, CMD_FLAGS_TYPE *flags, char *buf, int32_t *instr_ptr)
 {
     *flags = 0;
     char arg[MAX_LINE_LEN] = "";
-    int32_t len_arg = 0;
+    int32_t offset = 0;
 
-    sscanf(str, "%s%n", arg, &len_arg);
+    sscanf(str, "%s%n", arg, &offset);
 
     bool is_ram = false;
     if (arg[0] == '[')
     {
         is_ram = true;
         *flags |= CMD_MEM;
-        arg[len_arg - 1] = '\0';
+        *strchr(arg, ']') = '\0';
     }
 
     bool     is_val = false,
@@ -150,6 +150,8 @@ void AsmArgProcess(const char *str, CMD_FLAGS_TYPE *flags, char *buf, int32_t *i
         *((REG_TYPE*) (buf + *instr_ptr)) = reg_id;
         *instr_ptr += BYTES_REG;
     }
+
+    return offset;
 }
 
 REG_TYPE AsmRegFind(const char *reg_name)

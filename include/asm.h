@@ -25,7 +25,7 @@ struct LabelsInfo
 };
 
 LBL_TYPE AsmLabelProcess (LabelsInfo *labels_info, const char* str_label, int32_t instr_ptr);
-void     AsmArgProcess   (const char *str, CMD_FLAGS_TYPE *flags, char *buf, int32_t *instr_ptr);
+int32_t     AsmArgProcess   (const char *str, CMD_FLAGS_TYPE *flags, char *buf, int32_t *instr_ptr);
 
 void     AsmDoFixups     (LabelsInfo *labels_info, char *buf);
 void     AsmFixupAdd     (LabelsInfo *labels_info, LBL_TYPE label_id, int32_t instr_ptr);

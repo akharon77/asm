@@ -53,7 +53,7 @@ int main(int argc, const char* argv[])
                     {                                                                                             \
                         dprintf(2, "j = %d\n");                                                                   \
                         CMD_FLAGS_TYPE flags = 0;                                                                 \
-                        AsmArgProcess(text.lines[i].ptr + offset, &flags, buf, &instr_ptr);                       \
+                        offset += AsmArgProcess(text.lines[i].ptr + offset, &flags, buf, &instr_ptr);             \
                                                                                                                   \
                         *((CMD_TYPE*) (buf + instr_ptr_cmd)) |= (flags << (BITS_CMD_CONT + FLAGS_POS_OCCUP * j)); \
                     }                                                                                             \
