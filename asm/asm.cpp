@@ -14,11 +14,14 @@ const char *regs[N_REG] =
 
 LBL_TYPE AsmLabelProcess(LabelsInfo *labels_info, const char* str_label, int32_t instr_ptr)
 {
-    LBL_TYPE label_id = AsmLabelGet(labels_info, str_label);
+    char label_name[MAX_LABEL_LEN] = "";
+    sscanf(str_label, "%s", label_name);
+
+    LBL_TYPE label_id = AsmLabelGet(labels_info, label_name);
 
     LBL_TYPE ret_pos = labels_info->labels[label_id].pos;
 
-    if (ret_pos == -1)
+    if (ret_pos == NOT_INIT_LABEL)
         AsmFixupAdd(labels_info, label_id, instr_ptr);
 
     return ret_pos;
@@ -42,9 +45,9 @@ LBL_TYPE AsmLabelFind(LabelsInfo *labels_info, const char *str_label)
 
     for (int32_t i = 0; i < labels_info->n_labels; ++i)
         if (strcasecmp(labels_info->labels[i].name, label_name) == 0)
-            return labels_info->labels[i].pos;
+            return i;
 
-    return -1;
+    return NO_LABEL;
 }
 
 void AsmLabelAdd(LabelsInfo *labels_info, const char *str_label, LBL_TYPE pos)
@@ -58,10 +61,10 @@ LBL_TYPE AsmLabelGet(LabelsInfo *labels_info, const char *label_name)
 {
     LBL_TYPE label_id = AsmLabelFind(labels_info, label_name);
 
-    if (label_id != -1)
+    if (label_id != NO_LABEL)
         return label_id;
 
-    AsmLabelAdd(labels_info, label_name, -1);
+    AsmLabelAdd(labels_info, label_name, NOT_INIT_LABEL);
     return labels_info->n_labels - 1;
 }
 
