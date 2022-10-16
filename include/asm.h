@@ -35,7 +35,7 @@ void     AsmLabelUpd     (LabelsInfo *labels_info, const char *str_label, LBL_TY
 LBL_TYPE AsmLabelFind    (LabelsInfo *labels_info, const char *str_label);
 void     AsmLabelAdd     (LabelsInfo *labels_info, const char *str_label, LBL_TYPE pos);
 
-REG_TYPE AsmRegFind
+REG_TYPE AsmRegFind(const char *reg_name);
 
 void     LabelsInfoCtor  (LabelsInfo *labels_info);
 void     LabelsInfoDtor  (LabelsInfo *labels_info);

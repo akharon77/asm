@@ -5,6 +5,13 @@
 #include "cmds.h"
 #include "iostr.h"
 
+#define REG_DEF(name) #name,
+const char *regs[N_REG] = 
+    {
+#include "reg_def.h"
+    };
+#undef REG_DEF
+
 LBL_TYPE AsmLabelProcess(LabelsInfo *labels_info, const char* str_label, int32_t instr_ptr)
 {
     LBL_TYPE label_id = AsmLabelGet(labels_info, str_label);
@@ -145,3 +152,11 @@ void AsmArgProcess(const char *str, CMD_FLAGS_TYPE *flags, char *buf, int32_t *i
     }
 }
 
+REG_TYPE AsmRegFind(const char *reg_name)
+{
+    for (int32_t i = 0; i < N_REG; ++i)
+        if (strcasecmp(regs[i], reg_name) == 0)
+            return i;
+
+    return -1;
+}

@@ -3,6 +3,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
+#include <assert.h>
 #include "iostr.h"
 #include "asm.h"
 #include "cmds.h"
@@ -32,42 +33,42 @@ int main(int argc, const char* argv[])
 
         sscanf(text.lines[i].ptr, "%s%n", cmd, &offset);
 
-#define CMD_DEF(name, arg)                                                                                      \
-    {                                                                                                           \
-        if (strcasecmp(cmd, #name) == 0)                                                                        \
-        {                                                                                                       \
-            *((CMD_CONT_TYPE*) (buf + instr_ptr)) = CMD_##name;                                                 \
-                                                                                                                \
-            int32_t instr_ptr_cmd = instr_ptr;                                                                  \
-                                                                                                                \
-            if (arg != ZERO_ARG)                                                                                \
-            {                                                                                                   \
-                if (arg != LBL_ARG)                                                                             \
-                {                                                                                               \
-                    for (int32_t i = 0; i < arg; ++i)                                                           \
-                    {                                                                                           \
-                        CMD_FLAGS_TYPE flags = 0;                                                               \
-                        VAL_TYPE       val   = AsmParseArg(cmd + offset, &flags);                               \
-                                                                                                                \
-                        *((CMD_TYPE*) (buf + instr_ptr_cmd)) |= (flags << (FLAGS_POS_OCCUP * i));               \
-                        instr_ptr += BYTES_VAL_VAL;                                                             \
-                    }                                                                                           \
-                }                                                                                               \
-                else                                                                                            \
-                {                                                                                               \
-                    LBL_TYPE label_pos = AsmLabelsProcess(labels_info, text.lines[i].ptr + offset, instr_ptr);  \
-                    *((LBL_TYPE*) (buf + instr_ptr)) = label_pos;                                               \
-                    instr_ptr += BYTES_LBL_VAL;                                                                 \
-                }                                                                                               \
-            }                                                                                                   \
-                                                                                                                \
-            instr_ptr += BYTES_CMD_VAL;                                                                         \
-        }                                                                                                       \
-    }                                                                                                           \
+#define CMD_DEF(name, arg)                                                                                        \
+        if (strcasecmp(cmd, #name) == 0)                                                                          \
+        {                                                                                                         \
+            *((CMD_TYPE*) (buf + instr_ptr)) = CMD_##name;                                                        \
+            dprintf(2, "%s found\n", #name);                                                                      \
+                                                                                                                  \
+            int32_t instr_ptr_cmd = instr_ptr;                                                                    \
+                                                                                                                  \
+            instr_ptr += BYTES_CMD;                                                                               \
+                                                                                                                  \
+            if (arg != ZERO_ARG)                                                                                  \
+            {                                                                                                     \
+                dprintf(2, "no zero arg\n");                                                                      \
+                if (arg != LBL_ARG)                                                                               \
+                {                                                                                                 \
+                    dprintf(2, "no lbl arg\n");                                                                   \
+                    for (int32_t j = 0; j < arg; ++j)                                                             \
+                    {                                                                                             \
+                        dprintf(2, "j = %d\n");                                                                   \
+                        CMD_FLAGS_TYPE flags = 0;                                                                 \
+                        AsmArgProcess(text.lines[i].ptr + offset, &flags, buf, &instr_ptr);                       \
+                                                                                                                  \
+                        *((CMD_TYPE*) (buf + instr_ptr_cmd)) |= (flags << (BITS_CMD_CONT + FLAGS_POS_OCCUP * j)); \
+                    }                                                                                             \
+                }                                                                                                 \
+                else                                                                                              \
+                {                                                                                                 \
+                    LBL_TYPE label_pos = AsmLabelProcess(&labels_info, text.lines[i].ptr + offset, instr_ptr);    \
+                    *((LBL_TYPE*) (buf + instr_ptr)) = label_pos;                                                 \
+                    instr_ptr += BYTES_LBL;                                                                       \
+                }                                                                                                 \
+            }                                                                                                     \
+        }
 
 #include "cmd_def.h"
-    /*else*/
-        assert(0 && "wrong command\n");
+
 #undef CMD_DEF
 
         // if (strcasecmp(cmd, "push") == 0)
@@ -166,7 +167,7 @@ int main(int argc, const char* argv[])
         // }
     }
 
-    AsmFixLabels(buf, &labels_info);
+    AsmDoFixups(&labels_info, buf);
 
     int fd_output = creat(output_filename, S_IRWXU);
 

@@ -57,13 +57,13 @@ enum REGS
 #define FLAGS_POS_OCCUP     3
 
 #define IMM_IND             0
-#define CMD_IMM             (1ull << (8 * BYTES_CMD_CONT + IMM_IND))
+#define CMD_IMM             (1ull << IMM_IND)
 
 #define REG_IND             1
-#define CMD_REG             (1ull << (8 * BYTES_CMD_CONT + REG_IND))
+#define CMD_REG             (1ull << REG_IND)
 
 #define MEM_IND             2
-#define CMD_MEM             (1ull << (8 * BYTES_CMD_CONT + MEM_IND))
+#define CMD_MEM             (1ull << MEM_IND)
 
 #define ZERO_ARG            0
 #define  ONE_ARG            1
