@@ -7,86 +7,51 @@
 #include "iostr.h"
 #include "asm.h"
 #include "cmds.h"
+#include "colors.h"
 
 int main(int argc, const char* argv[])
 {
     int err = 0;
-    const char *input_filename = "input.asm", *output_filename = "output.bin";
+    const char *input_filename  = "input.asm", 
+               *output_filename = "output.bin";
 
-    TextInfo text = {};
-    TextInfoCtor(&text);
+    int options[N_EXEC_OPTIONS] = {};
 
-    char buf[MAX_PROG_SIZE] = {};
-
-    LabelsInfo labels_info = {};
-    LabelsInfoCtor(&labels_info);
-
-    inputText(&text, input_filename, &err);
-    markOutText(&text, &err);
-
-    int32_t instr_ptr = 0;
-
-    for (int i = 0; i < text.nlines; ++i)
+    bool ok = GetOptions(argc, argv, options);
+    if (!ok)
     {
-        char cmd[MAX_LINE_LEN] = "";
-        int  offset            = 0;
-
-        sscanf(text.lines[i].ptr, "%s%n", cmd, &offset);
-
-#define CMD_DEF(name, arg)                                                                                        \
-        if (strcasecmp(cmd, #name) == 0)                                                                          \
-        {                                                                                                         \
-            *((CMD_TYPE*) (buf + instr_ptr)) = CMD_##name;                                                        \
-            dprintf(2, "%s found\n", #name);                                                                      \
-                                                                                                                  \
-            int32_t instr_ptr_cmd = instr_ptr;                                                                    \
-                                                                                                                  \
-            instr_ptr += BYTES_CMD;                                                                               \
-                                                                                                                  \
-            if (arg != ZERO_ARG)                                                                                  \
-            {                                                                                                     \
-                dprintf(2, "no zero arg\n");                                                                      \
-                if (arg != LBL_ARG)                                                                               \
-                {                                                                                                 \
-                    dprintf(2, "no lbl arg\n");                                                                   \
-                    for (int32_t j = 0; j < arg; ++j)                                                             \
-                    {                                                                                             \
-                        dprintf(2, "j = %d\n");                                                                   \
-                        CMD_FLAGS_TYPE flags = 0;                                                                 \
-                        offset += AsmArgProcess(text.lines[i].ptr + offset, &flags, buf, &instr_ptr);             \
-                                                                                                                  \
-                        *((CMD_TYPE*) (buf + instr_ptr_cmd)) |= (flags << (BITS_CMD_CONT + FLAGS_POS_OCCUP * j)); \
-                    }                                                                                             \
-                }                                                                                                 \
-                else                                                                                              \
-                {                                                                                                 \
-                    LBL_TYPE label_pos = AsmLabelProcess(&labels_info, text.lines[i].ptr + offset, instr_ptr);    \
-                    *((LBL_TYPE*) (buf + instr_ptr)) = label_pos;                                                 \
-                    instr_ptr += BYTES_LBL;                                                                       \
-                }                                                                                                 \
-            }                                                                                                     \
-        }
-
-#include "cmd_def.h"
-        if (cmd[offset - 1] == ':')
-        {
-            cmd[offset - 1] = '\0';
-            AsmLabelUpd(&labels_info, cmd, instr_ptr);
-        }
-#undef CMD_DEF
+        printf(RED "Wrong arguments\n" NORMAL);
+        return 1;
     }
 
-    AsmDoFixups(&labels_info, buf);
+    if (options[HELP_OPTION])
+    {
+        for (int i = 0; i < N_EXEC_OPTIONS; ++i)
+            printf("%10s %5s %s\n",
+                    EXEC_OPTIONS[i].strFormLong,
+                    EXEC_OPTIONS[i].strFormShort,
+                    EXEC_OPTIONS[i].description);
+        return 0;
+    }
+
+    if (options[FILE_OPTION])
+        input_filename  = argv[options[FILE_OPTION] + 1];
+    if (options[OUTPUT_FILE_OPTION])
+        output_filename = argv[options[OUTPUT_FILE_OPTION] + 1];
+
+    Asm asmbler = {};
+    AsmCtor(&asmbler, input_filename, &err);
+
+    AsmRun(&asmbler);
 
     int fd_output = creat(output_filename, S_IRWXU);
 
-    write(fd_output, (void*) &instr_ptr, BYTES_SIZE);
-    write(fd_output, buf,                instr_ptr);
+    write(fd_output, (void*) &asmbler.instr_ptr, BYTES_SIZE);
+    write(fd_output, asmbler.buf,                asmbler.instr_ptr);
 
     close(fd_output);
 
-    TextInfoDtor   (&text);
-    LabelsInfoDtor (&labels_info);
+    AsmDtor(&asmbler);
 
     return 0;
 }

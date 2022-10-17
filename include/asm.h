@@ -2,6 +2,7 @@
 #define ASM_H
 
 #include "cmds.h"
+#include "iostr.h"
 
 struct Label
 {
@@ -24,8 +25,20 @@ struct LabelsInfo
     Fixup   fixups[MAX_N_FIXUPS];
 };
 
+struct Asm
+{
+    int32_t     instr_ptr;
+    TextInfo    text;
+    LabelsInfo  labels_info;
+    char       *buf;
+};
+
 const int NO_LABEL       = -2,
           NOT_INIT_LABEL = -1;
+
+void AsmCtor(Asm *asmbler, const char *filename, int *err);
+void AsmDtor(Asm *asmbler);
+void AsmRun(Asm *asmbler);
 
 LBL_TYPE AsmLabelProcess (LabelsInfo *labels_info, const char* str_label, int32_t instr_ptr);
 int32_t     AsmArgProcess   (const char *str, CMD_FLAGS_TYPE *flags, char *buf, int32_t *instr_ptr);

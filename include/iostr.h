@@ -46,6 +46,14 @@ enum ERRORS
     TEXT_MARKOUT_NULL_ERROR,
     N_ERRORS
 };
+
+enum OPTIONS
+{
+    FILE_OPTION,
+    OUTPUT_FILE_OPTION,
+    HELP_OPTION,
+    N_OPTIONS
+};
  
 struct ErrorTag
 {
@@ -76,17 +84,19 @@ struct TextInfo
     char  *base;
 };
 
+extern const Option   EXEC_OPTIONS[];
+extern const size_t   N_EXEC_OPTIONS;
 extern       ErrorTag ERROR_TAGS[];
 extern const char*    ERRORS[];
 extern const int      MAX_LINE_LEN;
 
 void TextInfoCtor  (TextInfo *text);
 void TextInfoDtor  (TextInfo *text);
-void inputText     (TextInfo *text, const char *filename, int *err);
-void initTextSep   (TextInfo *text);
-void markOutText   (TextInfo *text, int *err);
-bool getOptions    (const int argc, const char *argv[], int *optionsInd);
-void initErrorTags ();
+void InputText     (TextInfo *text, const char *filename, int *err);
+void InitTextSep   (TextInfo *text);
+void MarkOutText   (TextInfo *text, int *err);
+bool GetOptions    (const int argc, const char *argv[], int *optionsInd);
+void InitErrorTags ();
 
 #endif  //IOSTR_H
 

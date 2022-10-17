@@ -9,22 +9,12 @@
 
 const int MAX_LINE_LEN = 128;
 
-// Option EXEC_OPTIONS[] = 
-//     {
-//         {"--file",        "-f",  FILE_OPTION,             "from file"                   },
-//         {"--help",        "-h",  HELP_OPTION,             "show help"                   },
-//         {"--sort",        "-s",  SORT_OPTION,             "sort strings"                },
-//         {"--direct",      "-d",  DIRECT_OPTION,           "in direct order"             },
-//         {"--reverse",     "-r",  REVERSE_OPTION,          "in reverse order"            },
-//         {"--no-out",      "-n",  NO_OUTPUT_OPTION,        "don't output lines"          },
-//         {"--qsort",       "-q",  BUILT_IN_QSORT,          "built-in quick sort"         },
-//         {"--msort",       "-m",  MERGE_SORT,              "merge sort"                  },
-//         {"--left-align",  "-la", LEFT_OUTPUT_OPTION,      "left align output"           },
-//         {"--right-align", "-ra", RIGHT_OUTPUT_OPTION,     "right align output"          },
-//         {"--test",        "-t",  TEST_OPTION,             "test program"                },
-//         {"--output",      "-o",  OUTPUT_FILE_OPTION,      "output text to file"         },
-//         {"--orig",        "-g",  ORIG_OUTPUT_FILE_OPTION, "output original text to file"}
-//     };
+const Option EXEC_OPTIONS[] = 
+    {
+        {"--file",        "-f",  FILE_OPTION,             "from file (default: input.asm)"                   },
+        {"--help",        "-h",  HELP_OPTION,             "show help"                   },
+        {"--output",      "-o",  OUTPUT_FILE_OPTION,      "output text to file (default: output.bin)"         }
+    };
  
 ErrorTag ERROR_TAGS[] =
     {
@@ -40,26 +30,26 @@ ErrorTag ERROR_TAGS[] =
 
 const char* ERRORS[N_ERRORS] = {};
 
-// const size_t N_EXEC_OPTIONS = sizeof(EXEC_OPTIONS) / sizeof(Option);
-// 
-// bool getOptions(const int argc, const char *argv[], int *optionsInd)
-// {
-//     ASSERT(argv != NULL);
-// 
-//     for (int i = 1; i < argc; ++i)
-//         for (size_t j = 0; j < N_EXEC_OPTIONS; ++j)
-//             if (strcmp(EXEC_OPTIONS[j].strFormLong, argv[i])  == 0 ||
-//                 strcmp(EXEC_OPTIONS[j].strFormShort, argv[i]) == 0)
-//             {
-//                 int id = EXEC_OPTIONS[j].optionId;
-//                 if (optionsInd[id])
-//                     return false;
-// 
-//                 optionsInd[id] = i;
-//             }
-// 
-//     return true;
-// }
+const size_t N_EXEC_OPTIONS = sizeof(EXEC_OPTIONS) / sizeof(Option);
+
+bool GetOptions(const int argc, const char *argv[], int optionsInd[])
+{
+    ASSERT(argv != NULL);
+
+    for (int i = 1; i < argc; ++i)
+        for (size_t j = 0; j < N_EXEC_OPTIONS; ++j)
+            if (strcmp(EXEC_OPTIONS[j].strFormLong, argv[i])  == 0 ||
+                strcmp(EXEC_OPTIONS[j].strFormShort, argv[i]) == 0)
+            {
+                int id = EXEC_OPTIONS[j].optionId;
+                if (optionsInd[id])
+                    return false;
+
+                optionsInd[id] = i;
+            }
+
+    return true;
+}
 
 void TextInfoCtor(TextInfo *text)
 {
@@ -68,7 +58,7 @@ void TextInfoCtor(TextInfo *text)
     text->base  = NULL;
 }
 
-void inputText(TextInfo *text, const char *filename, int *err)
+void InputText(TextInfo *text, const char *filename, int *err)
 {
     *err = NO_ERROR;
 
@@ -94,8 +84,10 @@ void inputText(TextInfo *text, const char *filename, int *err)
     close(fd);
 }
 
-void initTextSep(TextInfo *text)
+void InitTextSep(TextInfo *text)
 {
+    ASSERT(text != NULL);
+
     size_t res   = 0;
     bool   empty = true;
 
@@ -118,13 +110,16 @@ void initTextSep(TextInfo *text)
     text->nlines = res;
 }
 
-void markOutText(TextInfo *text, int *err)
+void MarkOutText(TextInfo *text, int *err)
 {
+    ASSERT(text != NULL);
+    ASSERT(err  != NULL);
+    
     *err = NO_ERROR;
 
     RET_ERR(text == NULL, err, TEXT_MARKOUT_NULL_ERROR);
 
-    initTextSep(text);
+    InitTextSep(text);
     text->lines = (Line*) calloc(text->nlines, sizeof(Line));
 
     bool isLine = false;
@@ -160,7 +155,7 @@ void TextInfoDtor(TextInfo *text)
     text->lines = NULL;
 }
 
-void initErrorTags()
+void InitErrorTags()
 {
     for (int i = 0; i < N_ERRORS; ++i)
         ERRORS[ERROR_TAGS[i].errorId] = ERROR_TAGS[i].description;

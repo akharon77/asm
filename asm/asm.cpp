@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "asm.h"
 #include "cmds.h"
 #include "iostr.h"
@@ -11,6 +12,88 @@ const char *regs[N_REG] =
 #include "reg_def.h"
     };
 #undef REG_DEF
+
+void AsmCtor(Asm *asmbler, const char *filename, int *err)
+{
+    asmbler->instr_ptr = 0;
+
+    asmbler->buf = (char*) calloc(MAX_PROG_SIZE, sizeof(char));
+
+    TextInfoCtor(&asmbler->text);
+
+    InputText(&asmbler->text, filename, err);
+    MarkOutText(&asmbler->text, err);
+
+    LabelsInfoCtor(&asmbler->labels_info);
+}
+
+void AsmDtor(Asm *asmbler)
+{
+    free(asmbler->buf);
+
+    TextInfoDtor   (&asmbler->text);
+    LabelsInfoDtor (&asmbler->labels_info);
+}
+
+void AsmRun(Asm *asmbler)
+{
+    TextInfo   *text        = &asmbler->text;
+    LabelsInfo *labels_info = &asmbler->labels_info;
+    char       *buf         =  asmbler->buf;
+    int32_t    *instr_ptr   = &asmbler->instr_ptr;
+
+    for (int i = 0; i < text->nlines; ++i)
+    {
+        char cmd[MAX_LINE_LEN] = "";
+        int  offset            = 0;
+
+        sscanf(text->lines[i].ptr, "%s%n", cmd, &offset);
+
+#define CMD_DEF(name, arg)                                                                                        \
+        if (strcasecmp(cmd, #name) == 0)                                                                          \
+        {                                                                                                         \
+            *((CMD_TYPE*) (buf + *instr_ptr)) = CMD_##name;                                                        \
+            dprintf(2, "%s found\n", #name);                                                                      \
+                                                                                                                  \
+            int32_t instr_ptr_cmd = *instr_ptr;                                                                    \
+                                                                                                                  \
+            *instr_ptr += BYTES_CMD;                                                                               \
+                                                                                                                  \
+            if (arg != ZERO_ARG)                                                                                  \
+            {                                                                                                     \
+                dprintf(2, "no zero arg\n");                                                                      \
+                if (arg != LBL_ARG)                                                                               \
+                {                                                                                                 \
+                    dprintf(2, "no lbl arg\n");                                                                   \
+                    for (int32_t j = 0; j < arg; ++j)                                                             \
+                    {                                                                                             \
+                        dprintf(2, "j = %d\n");                                                                   \
+                        CMD_FLAGS_TYPE flags = 0;                                                                 \
+                        offset += AsmArgProcess(text->lines[i].ptr + offset, &flags, buf, instr_ptr);             \
+                                                                                                                  \
+                        *((CMD_TYPE*) (buf + instr_ptr_cmd)) |= (flags << (BITS_CMD_CONT + FLAGS_POS_OCCUP * j)); \
+                    }                                                                                             \
+                }                                                                                                 \
+                else                                                                                              \
+                {                                                                                                 \
+                    LBL_TYPE label_pos = AsmLabelProcess(labels_info, text->lines[i].ptr + offset, *instr_ptr);    \
+                    *((LBL_TYPE*) (buf + *instr_ptr)) = label_pos;                                                 \
+                    *instr_ptr += BYTES_LBL;                                                                       \
+                }                                                                                                 \
+            }                                                                                                     \
+        }
+
+#include "cmd_def.h"
+        if (cmd[offset - 1] == ':')
+        {
+            cmd[offset - 1] = '\0';
+            AsmLabelUpd(labels_info, cmd, *instr_ptr);
+        }
+#undef CMD_DEF
+    }
+
+    AsmDoFixups(labels_info, buf);
+}
 
 LBL_TYPE AsmLabelProcess(LabelsInfo *labels_info, const char* str_label, int32_t instr_ptr)
 {
