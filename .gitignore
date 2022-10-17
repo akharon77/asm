@@ -1,6 +1,7 @@
 *.o
 *.out
 *.d
+*.dd
 *.log
 *.ii
 vgcore*

@@ -30,7 +30,7 @@ struct Asm
     int32_t     instr_ptr;
     TextInfo    text;
     LabelsInfo  labels_info;
-    char       *buf;
+    char        buf[MAX_PROG_SIZE];
 };
 
 const int NO_LABEL       = -2,

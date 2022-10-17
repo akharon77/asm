@@ -1,93 +1,54 @@
 #include <fcntl.h>
+#include <stdint.h>
 #include "cmds.h"
 #include "stack.h"
 
 int main()
 {
     int fd_inp = open("output.bin", O_RDONLY, 0);
+    SIZE_TYPE size = 0;
+    read(fd_inp, (void*) &size, BYTES_SIZE);
 
-    Stack stk = {};
-    StackCtor(&stk, 16);
+    Proc cpu = {};
+    ProcCtor(&cpu, size, fd_inp);
 
-    int32_t size = 0;
-    read(fd_inp, &size, BYTES_SIZE);
+    close(fd_inp);
 
-    int instr_ptr = 0;
-    while (instr_ptr < size)
+    while (cpu.instr_ptr < size)
     {
-        int16_t com = 0;
+        CMD_TYPE com = 0;
         read(fd_inp, &com, BYTES_CMD);
 
-        switch ((int16_t) ((*((uint16_t*) &com)) & COM_MASK))
+#define COMMA         ,
+
+#define PUSH(val)     StackPush (&cpu.stk, val)
+#define POP           StackPop  (&stk)
+
+#define BUF           cpu.buf
+#define IP            cpu.instr_ptr
+#define ARG(i)        BUF[IP+(i)]
+#define ARG_VAL_IP(i) (BYTES_CMD + ((i) - 1) * BYTES_VAL)
+#define ARG_LBL_IP(i) (BYTES_CMD + ((i) - 1) * BYTES_ARG)
+
+#define REG(name)     REG_##name
+
+#define RAX           REG(RAX)
+#define RBX           REG(RBX)
+#define RCX           REG(RCX)
+#define RDX           REG(RDX)
+
+#define CF            REG(CF)
+#define ZF            REG(ZF)
+
+#define CMD_DEF(name, arg, code) \
+    case CMD_##name:             \
+        code                     \
+        break;          
+
+        switch ((CMD_TYPE) (*((CMD_TYPE*) &com) & COM_MASK))
         {
-            case CMD_PUSH:
-            {
-                int32_t val = 0;
-                read(fd_inp, &val, BYTES_VAL);
-                instr_ptr += BYTES_VAL;
-                StackPush(&stk, val);
-                instr_ptr += BYTES_CMD;
-                break;
-            }
-            case CMD_POP:
-            {
-                StackPop(&stk);
-                instr_ptr += BYTES_CMD;
-                break;
-            }
-            case CMD_ADD:
-            {
-                int32_t val1 = StackPop(&stk),
-                        val2 = StackPop(&stk);
-                StackPush(&stk, val1 + val2);
-                instr_ptr += BYTES_CMD;
-                break;
-            }
-            case CMD_SUB:
-            {
-                int32_t val1 = 0, val2 = 0;
-                val1 = StackPop(&stk);
-                val2 = StackPop(&stk);
-                StackPush(&stk, val2 - val1);
-                instr_ptr += BYTES_CMD;
-                break;
-            }
-            case CMD_MUL:
-            {
-                int32_t val1 = 0, val2 = 0;
-                val1 = StackPop(&stk);
-                val2 = StackPop(&stk);
-                StackPush(&stk, val1 * val2);
-                instr_ptr += BYTES_CMD;
-                break;
-            }
-            case CMD_DIV:
-            {
-                int32_t val1 = 0, val2 = 0;
-                val1 = StackPop(&stk);
-                val2 = StackPop(&stk);
-                StackPush(&stk, val2 / val1);
-                instr_ptr += BYTES_CMD;
-                break;
-            }
-            case CMD_OUT:
-            {
-                int32_t val = StackPop(&stk);
-                printf("%d\n", val);
-                instr_ptr += BYTES_CMD;
-                break;
-            }
-            case CMD_JMP:
-            {
-                int32_t label = 0;
-                read(fd_inp, &label, BYTES_LABEL);
-                instr_ptr = BYTES_LABEL;
-                break;
-            }
-            case CMD_HLT:
-            {
-                exit(0);
-            }
+            #include "cmd_def.h"
+#undef CMD_DEF
         }
     }
 

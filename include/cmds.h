@@ -26,6 +26,7 @@ enum REGS
 #define MAX_PROG_SIZE       1024
 
 #define BITS_SIZE           32
+#define SIZE_TYPE           int32_t
 #define BYTES_SIZE          (BITS_SIZE      / 8)
 
 #define BITS_CMD            16
@@ -41,6 +42,7 @@ enum REGS
 #define BYTES_CMD_FLAGS     (BITS_CMD_FLAGS / 8)
 
 #define CMD_MASK            ((1ull << 8 * BYTES_CMD_CONT) - 1)
+#define FLAGS_MASK          ((1ull << FLAGS_POS_OCCUP) - 1)
 
 #define BITS_VAL            32
 #define VAL_TYPE            int32_t

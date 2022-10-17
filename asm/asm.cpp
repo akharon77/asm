@@ -17,8 +17,7 @@ void AsmCtor(Asm *asmbler, const char *filename, int *err)
 {
     asmbler->instr_ptr = 0;
 
-    asmbler->buf = (char*) calloc(MAX_PROG_SIZE, sizeof(char));
-
+    memset(asmbler->buf, 0, MAX_PROG_SIZE);
     TextInfoCtor(&asmbler->text);
 
     InputText(&asmbler->text, filename, err);
@@ -29,7 +28,7 @@ void AsmCtor(Asm *asmbler, const char *filename, int *err)
 
 void AsmDtor(Asm *asmbler)
 {
-    free(asmbler->buf);
+    memset(asmbler->buf, -1, MAX_PROG_SIZE);
 
     TextInfoDtor   (&asmbler->text);
     LabelsInfoDtor (&asmbler->labels_info);
@@ -49,7 +48,7 @@ void AsmRun(Asm *asmbler)
 
         sscanf(text->lines[i].ptr, "%s%n", cmd, &offset);
 
-#define CMD_DEF(name, arg)                                                                                        \
+#define CMD_DEF(name, arg, code)                                                                                        \
         if (strcasecmp(cmd, #name) == 0)                                                                          \
         {                                                                                                         \
             *((CMD_TYPE*) (buf + *instr_ptr)) = CMD_##name;                                                        \
