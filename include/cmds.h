@@ -19,6 +19,18 @@ enum REGS
 };
 #undef REG_DEF
 
+#define REG(name)           REG_##name
+
+#define RAX                 REG(RAX)
+#define RBX                 REG(RBX)
+#define RCX                 REG(RCX)
+#define RDX                 REG(RDX)
+
+#define FLAGS               REG(FLAGS)
+
+#define CF                  (REG(FLAGS) >> CF_IND) & 1
+#define ZF                  (REG(FLAGS) >> ZF_IND) & 1
+
 #define MAX_LABEL_LEN       16
 #define MAX_N_LABELS        64
 #define MAX_N_FIXUPS        128

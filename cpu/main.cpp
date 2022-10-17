@@ -21,27 +21,31 @@ int main()
 
 #define COMMA         ,
 
-#define PUSH(val)     StackPush (&cpu.stk, val)
-#define POP           StackPop  (&stk)
+#define STK           &cpu.stk
 
 #define BUF           cpu.buf
 #define IP            cpu.instr_ptr
-#define ARG(i)        BUF[IP+(i)]
-#define ARG_VAL_IP(i) (BYTES_CMD + ((i) - 1) * BYTES_VAL)
-#define ARG_LBL_IP(i) (BYTES_CMD + ((i) - 1) * BYTES_ARG)
-
-#define REG(name)     REG_##name
-
-#define RAX           REG(RAX)
-#define RBX           REG(RBX)
-#define RCX           REG(RCX)
-#define RDX           REG(RDX)
-
-#define CF            REG(CF)
-#define ZF            REG(ZF)
+#define ARG(type)     *((type##_TYPE*) BUF[IP])
+#define LOL(flags)    
+        VAL_TYPE val = 0;
+        if (flags & CMD_IMM)
+        {
+            val += ARG(VAL);
+            IP  += BYTES_VAL;
+        }
+        if (flags & CMD_REG)
+        {
+            val += ARG(REG);
+            IP  += BYTES_REG;
+        }
+        if (flags & CMD_MEM)
+        {
+            
+        }
 
 #define CMD_DEF(name, arg, code) \
     case CMD_##name:             \
+        IP += BYTES_CMD;         \
         code                     \
         break;          
 
@@ -56,3 +60,5 @@ int main()
 
     return 0;
 }
+
+int32_t ProcGetValue(Proc *proc
