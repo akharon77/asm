@@ -2,6 +2,7 @@
 #define CPU_H
 
 #include "cmds.h"
+#include "stack.h"
 
 #define COMMA           ,
 #define CUR             BUF[IP]
@@ -10,17 +11,17 @@
 #define REG(name)       REGS[REG_##name]
 
 #define PUSH(val)       StackPush (&STK, val)
+#define TOP             StackTop  (&STK)
 #define POP             StackPop  (&STK)
-
-#define RAX             REG(RAX)
-#define RBX             REG(RBX)
-#define RCX             REG(RCX)
-#define RDX             REG(RDX)
 
 #define RFLAGS          REG(RFLAGS)
 
-#define CF              (RFLAGS >> CF_IND) & 1
-#define ZF              (RFLAGS >> ZF_IND) & 1
+// temporary cringe
+#define CF_IND          0
+#define ZF_IND          1
+
+#define CF              ((RFLAGS >> CF_IND) & 1)
+#define ZF              ((RFLAGS >> ZF_IND) & 1)
 
 #define GET_VAL(flags, var)     \
     if (flags & FLG_IMM)        \
@@ -38,6 +39,8 @@
 struct Proc
 {
     Stack     stk;
+
+    SIZE_TYPE instr_ptr;
 
     SIZE_TYPE buf_size;
     char      buf[MAX_PROG_SIZE];

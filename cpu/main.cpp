@@ -1,22 +1,23 @@
 #include <fcntl.h>
 #include <stdint.h>
 #include "cpu.h"
-#include "cmd.h"
+#include "cmds.h"
 #include "stack.h"
 
 int main()
 {
     Proc cpu = {};
-    ProcCtor(&cpu);
+    ProcCtor(&cpu, 1024);
 
 #define STK  cpu.stk
 #define BUF  cpu.buf
 #define IP   cpu.instr_ptr
 #define REGS cpu.regs
+#define MEM  cpu.mem
 
     ProcLoadFromFile(&cpu, "output.bin");
 
-    while (cpu.instr_ptr < size)
+    while (cpu.instr_ptr < cpu.buf_size)
     {
 
 #define CMD_DEF(name, arg, code) \
@@ -39,7 +40,7 @@ int main()
                 IP = lbl;     \
         })
 
-        switch (ARG(CMD_TYPE) & COM_MASK)
+        switch (ARG(CMD) & CMD_MASK)
         {
             #include "cmd_def.h"
         }
@@ -49,7 +50,7 @@ int main()
 
     }
 
-    ProcDtor(&proc);
+    ProcDtor(&cpu);
 
     return 0;
 }

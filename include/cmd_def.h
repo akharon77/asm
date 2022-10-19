@@ -30,7 +30,7 @@ CMD_DEF(DIV,  ZERO_ARG,
 CMD_DEF(OUT,  ZERO_ARG,
         {
             INC(CMD_FLAGS);
-            printf("%d\n" COMMA ARG);
+            printf("%d\n" COMMA TOP);
         })
 CMD_DEF(HLT,  ZERO_ARG,
         {
@@ -47,31 +47,31 @@ CMD_DEF(CMP,   TWO_ARG,
             VAL_TYPE       val1   = 0 COMMA
                            val2   = 0;
 
-            flags0 = ARG(FLAGS);
-            INC(FLAGS);
+            flags0 = ARG(CMD_FLAGS);
+            INC(CMD_FLAGS);
 
             flags1 =  flags0                     & FLAGS_MASK;
             flags2 = (flags0 >> FLAGS_POS_OCCUP) & FLAGS_MASK;
 
-            GET_VAL(flags1 COMMA val1);
+            GET_VAL(flags1, val1);
 
             if (flags1 & FLG_MEM)
                 val1 = MEM[val1];
 
-            GET_VAL(flags2 COMMA val2);
+            GET_VAL(flags2, val2);
 
             if (flags2 & FLG_MEM)
                 val2 = MEM[val2];
 
             if (val1 == val2)
-                ZF = 1;
+                RFLAGS |=   1 << ZF_IND;
             else
-                ZF = 0;
+                RFLAGS &= ~(1 << ZF_IND);
 
             if (val1 > val2)
-                CF = 0;
+                RFLAGS &= ~(1 << CF_IND);
             else
-                CF = 1;
+                RFLAGS |=   1 << CF_IND;
         })
 
 CMD_DEF(PUSH,  ONE_ARG,
@@ -79,10 +79,10 @@ CMD_DEF(PUSH,  ONE_ARG,
             CMD_FLAGS_TYPE flags = 0;
             VAL_TYPE       val   = 0;
 
-            flags = ARG(FLAGS) & FLAGS_MASK;
-            INC(FLAGS);
+            flags = ARG(CMD_FLAGS) & FLAGS_MASK;
+            INC(CMD_FLAGS);
 
-            GET_VAL(flags COMMA val);
+            GET_VAL(flags, val);
 
             if (flags & FLG_MEM)
                 val = MEM[val];
@@ -94,10 +94,10 @@ CMD_DEF(POP,   ONE_ARG,
             CMD_FLAGS_TYPE flags = 0;
             VAL_TYPE       val   = 0;
 
-            flags = ARG(FLAGS) & FLAGS_MASK;
-            INC(FLAGS);
+            flags = ARG(CMD_FLAGS) & FLAGS_MASK;
+            INC(CMD_FLAGS);
 
-            GET_VAL(flags COMMA val);
+            GET_VAL(flags, val);
 
             VAL_TYPE pop_val = POP;
 

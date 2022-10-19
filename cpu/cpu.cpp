@@ -1,12 +1,15 @@
 #include <string.h>
 #include "cpu.h"
+#include "stack.h"
 
 void ProcCtor(Proc *cpu, SIZE_TYPE mem_size)
 {
     ASSERT(cpu      != NULL);
     ASSERT(mem_size > 0);
 
-    StackCtor(cpu->stk, 16);
+    cpu->instr_ptr = 0;
+
+    StackCtor(&cpu->stk, 16);
 
     memset(cpu->buf, 0, MAX_PROG_SIZE);
 
@@ -22,7 +25,9 @@ void ProcDtor(Proc *cpu)
 {
     ASSERT(cpu != NULL);
 
-    StackDtor(cpu->stk);
+    cpu->instr_ptr = 0;
+
+    StackDtor(&cpu->stk);
 
     cpu->mem_size = 0;
     free(cpu->mem);
