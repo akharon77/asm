@@ -1,7 +1,7 @@
 #include <fcntl.h>
 #include <stdint.h>
 #include "cpu.h"
-#include "cmds.h"
+#include "cmd.h"
 #include "stack.h"
 
 int main()
@@ -23,43 +23,10 @@ int main()
         CMD_TYPE com = 0;
         read(fd_inp, &com, BYTES_CMD);
 
-
 #define STK             cpu.stk
 #define BUF             cpu.buf
 #define IP              cpu.instr_ptr
 #define REGS            cpu.regs
-
-#define COMMA           ,
-#define CUR             BUF[IP]
-#define ARG(type)       *((type##_TYPE*) CUR)
-#define INC(type)       IP += BYTES_##type
-#define REG(name)       REGS[REG_##name]
-
-#define PUSH(val)       StackPush (&STK, val)
-#define POP             StackPop  (&STK)
-
-#define RAX             REG(RAX)
-#define RBX             REG(RBX)
-#define RCX             REG(RCX)
-#define RDX             REG(RDX)
-
-#define RFLAGS          REG(RFLAGS)
-
-#define CF              (RFLAGS >> CF_IND) & 1
-#define ZF              (RFLAGS >> ZF_IND) & 1
-
-#define GET_VAL(flags, var)     \
-    if (flags & FLG_IMM)        \
-    {                           \
-        var += ARG(VAL);        \
-        INC(VAL);               \
-    }                           \
-                                \
-    if (flags & FLG_REG)        \
-    {                           \
-        var += REGS[ARG(REG)];  \
-        INC(REG);               \
-    }
 
 #define CMD_DEF(name, arg, code) \
     case CMD_##name:             \
