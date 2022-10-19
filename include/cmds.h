@@ -3,13 +3,15 @@
 
 #include <stdint.h>
 
-#define CMD_DEF(name, arg) CMD_##name,
+#define CMD_DEF(name, arg, code) CMD_##name,
+#define JMP_DEF(name, cond)      CMD_DEF(name,,)
 enum CMDS
 {
 #include "cmd_def.h"
     N_CMD
 };
 #undef CMD_DEF
+#undef JMP_DEF
 
 #define REG_DEF(name) REG_##name,
 enum REGS
@@ -18,18 +20,6 @@ enum REGS
     N_REG
 };
 #undef REG_DEF
-
-#define REG(name)           REG_##name
-
-#define RAX                 REG(RAX)
-#define RBX                 REG(RBX)
-#define RCX                 REG(RCX)
-#define RDX                 REG(RDX)
-
-#define FLAGS               REG(FLAGS)
-
-#define CF                  (REG(FLAGS) >> CF_IND) & 1
-#define ZF                  (REG(FLAGS) >> ZF_IND) & 1
 
 #define MAX_LABEL_LEN       16
 #define MAX_N_LABELS        64
@@ -71,13 +61,13 @@ enum REGS
 #define FLAGS_POS_OCCUP     3
 
 #define IMM_IND             0
-#define CMD_IMM             (1ull << IMM_IND)
+#define FLG_IMM             (1ull << IMM_IND)
 
 #define REG_IND             1
-#define CMD_REG             (1ull << REG_IND)
+#define FLG_REG             (1ull << REG_IND)
 
 #define MEM_IND             2
-#define CMD_MEM             (1ull << MEM_IND)
+#define FLG_MEM             (1ull << MEM_IND)
 
 #define ZERO_ARG            0
 #define  ONE_ARG            1

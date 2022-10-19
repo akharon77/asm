@@ -7,7 +7,7 @@
 #include "iostr.h"
 
 #define REG_DEF(name) #name,
-const char *regs[N_REG] = 
+const char *regs_name[N_REG] = 
     {
 #include "reg_def.h"
     };
@@ -48,15 +48,15 @@ void AsmRun(Asm *asmbler)
 
         sscanf(text->lines[i].ptr, "%s%n", cmd, &offset);
 
-#define CMD_DEF(name, arg, code)                                                                                        \
+#define CMD_DEF(name, arg, code)                                                                                  \
         if (strcasecmp(cmd, #name) == 0)                                                                          \
         {                                                                                                         \
-            *((CMD_TYPE*) (buf + *instr_ptr)) = CMD_##name;                                                        \
+            *((CMD_TYPE*) (buf + *instr_ptr)) = CMD_##name;                                                       \
             dprintf(2, "%s found\n", #name);                                                                      \
                                                                                                                   \
-            int32_t instr_ptr_cmd = *instr_ptr;                                                                    \
+            SIZE_TYPE instr_ptr_cmd = *instr_ptr;                                                                 \
                                                                                                                   \
-            *instr_ptr += BYTES_CMD;                                                                               \
+            *instr_ptr += BYTES_CMD;                                                                              \
                                                                                                                   \
             if (arg != ZERO_ARG)                                                                                  \
             {                                                                                                     \
@@ -75,12 +75,13 @@ void AsmRun(Asm *asmbler)
                 }                                                                                                 \
                 else                                                                                              \
                 {                                                                                                 \
-                    LBL_TYPE label_pos = AsmLabelProcess(labels_info, text->lines[i].ptr + offset, *instr_ptr);    \
-                    *((LBL_TYPE*) (buf + *instr_ptr)) = label_pos;                                                 \
-                    *instr_ptr += BYTES_LBL;                                                                       \
+                    LBL_TYPE label_pos = AsmLabelProcess(labels_info, text->lines[i].ptr + offset, *instr_ptr);   \
+                    *((LBL_TYPE*) (buf + *instr_ptr)) = label_pos;                                                \
+                    *instr_ptr += BYTES_LBL;                                                                      \
                 }                                                                                                 \
             }                                                                                                     \
         }
+#define JMP_DEF(name, cond) CMD_DEF(name, LBL_ARG,)
 
 #include "cmd_def.h"
         if (cmd[offset - 1] == ':')
@@ -188,7 +189,7 @@ int32_t AsmArgProcess(const char *str, CMD_FLAGS_TYPE *flags, char *buf, int32_t
     if (arg[0] == '[')
     {
         is_ram = true;
-        *flags |= CMD_MEM;
+        *flags |= FLG_MEM;
         *strchr(arg, ']') = '\0';
     }
 
@@ -220,7 +221,7 @@ int32_t AsmArgProcess(const char *str, CMD_FLAGS_TYPE *flags, char *buf, int32_t
 
     if (is_val)
     {
-        *flags |= CMD_IMM;
+        *flags |= FLG_IMM;
 
         *((VAL_TYPE*) (buf + *instr_ptr)) = arg_v;
         *instr_ptr += BYTES_VAL;
@@ -228,7 +229,7 @@ int32_t AsmArgProcess(const char *str, CMD_FLAGS_TYPE *flags, char *buf, int32_t
 
     if (is_reg)
     {
-        *flags |= CMD_REG;
+        *flags |= FLG_REG;
 
         REG_TYPE reg_id = AsmRegFind(arg_s);
 
@@ -242,7 +243,7 @@ int32_t AsmArgProcess(const char *str, CMD_FLAGS_TYPE *flags, char *buf, int32_t
 REG_TYPE AsmRegFind(const char *reg_name)
 {
     for (int32_t i = 0; i < N_REG; ++i)
-        if (strcasecmp(regs[i], reg_name) == 0)
+        if (strcasecmp(regs_name[i], reg_name) == 0)
             return i;
 
     return -1;
