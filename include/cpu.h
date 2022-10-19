@@ -6,7 +6,7 @@
 
 #define COMMA           ,
 #define CUR             BUF[IP]
-#define ARG(type)       *((type##_TYPE*) CUR)
+#define ARG(type)       (*((type##_TYPE*) &(CUR)))
 #define INC(type)       IP += BYTES_##type
 #define REG(name)       REGS[REG_##name]
 

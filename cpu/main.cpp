@@ -40,7 +40,7 @@ int main()
                 IP = lbl;     \
         })
 
-        switch (ARG(CMD) & CMD_MASK)
+        switch (ARG(CMD_CONT))
         {
             #include "cmd_def.h"
         }
