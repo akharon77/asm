@@ -54,7 +54,7 @@ CMD_DEF(CMP,   TWO_ARG,
             flags2 = (flags0 >> FLAGS_POS_OCCUP) & FLAGS_MASK;
 
             GET_VAL(flags1, val1);
-
+// TODO  исправить оно неправильно работает!!!!
             if (flags1 & FLG_MEM)
                 val1 = MEM[val1];
 
@@ -102,7 +102,10 @@ CMD_DEF(POP,   ONE_ARG,
             VAL_TYPE pop_val = POP;
 
             if (flags & FLG_MEM)
-                MEM[val] = pop_val;
+                MEM[val]  = pop_val;
+
+            if (flags & FLG_REG)
+                REGS[val] = pop_val;
         })
 
 JMP_DEF(JMP,   true)
