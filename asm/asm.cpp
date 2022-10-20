@@ -2,6 +2,8 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include "asm.h"
 #include "cmds.h"
 #include "iostr.h"
@@ -43,20 +45,27 @@ void AsmRun(Asm *asmbler)
 
     for (int i = 0; i < text->nlines; ++i)
     {
-        char cmd[MAX_LINE_LEN] = "";
-        int  offset            = 0;
+        char cmd[MAX_LINE_LEN]           = "";
+        int  offset                      = 0;
+        char list_line[2 * MAX_LINE_LEN] = "";
 
         sscanf(text->lines[i].ptr, "%s%n", cmd, &offset);
+
+#define BUF buf
+#define IP  *instr_ptr
 
 #define CMD_DEF(name, arg, code)                                                                                  \
         if (strcasecmp(cmd, #name) == 0)                                                                          \
         {                                                                                                         \
-            *((CMD_TYPE*) (buf + *instr_ptr)) = CMD_##name;                                                       \
+            ARG(CMD) = CMD_##name;                                                                                \
+            /**((CMD_TYPE*) (buf + *instr_ptr)) = CMD_##name;*/                                                   \
             dprintf(2, "%s found\n", #name);                                                                      \
                                                                                                                   \
             SIZE_TYPE instr_ptr_cmd = *instr_ptr;                                                                 \
                                                                                                                   \
-            *instr_ptr += BYTES_CMD;                                                                              \
+            /**instr_ptr += BYTES_CMD;*/                                                                          \
+                                                                                                                  \
+            INC(CMD);                                                                                             \
                                                                                                                   \
             if (arg != ZERO_ARG)                                                                                  \
             {                                                                                                     \
@@ -80,16 +89,51 @@ void AsmRun(Asm *asmbler)
                     *instr_ptr += BYTES_LBL;                                                                      \
                 }                                                                                                 \
             }                                                                                                     \
+                                                                                                                  \
+            int32_t list_line_offset = 0;                                                                         \
+                                                                                                                  \
+            sprintf(list_line, "%8x ", *((CMD_TYPE*) (buf + instr_ptr_cmd)));                                     \
+            instr_ptr_cmd += BYTES_CMD;                                                                           \
+            list_line_offset += 9;                                                                                \
+                                                                                                                  \
+            CMD_FLAGS_TYPE flags = *((CMD_FLAGS_TYPE*) (buf + instr_ptr_cmd));                                    \
+            sprintf(list_line + list_line_offset, "%8x ", flags);                                                 \
+            list_line_offset += 9;                                                                                \
+            instr_ptr_cmd += BYTES_CMD_FLAGS;                                                                     \
+                                                                                                                  \
+            if (flags & FLG_IMM)                                                                                  \
+            {                                                                                                     \
+                sprintf(list_line + list_line_offset, "%8x ", *((VAL_TYPE*) (buf + instr_ptr_cmd)));              \
+                instr_ptr_cmd += BYTES_VAL;                                                                       \
+                list_line_offset += 9;                                                                            \
+            }                                                                                                     \
+                                                                                                                  \
+            if (flags & FLG_REG)                                                                                  \
+            {                                                                                                     \
+                sprintf(list_line + list_line_offset, "%8x ", *((REG_TYPE*) (buf + instr_ptr_cmd)));              \
+                instr_ptr_cmd += BYTES_REG;                                                                       \
+                list_line_offset += 9;                                                                            \
+            }                                                                                                     \
+                                                                                                                  \
+            sprintf(list_line + list_line_offset, "| %s\n", cmd);                                                 \
+                                                                                                                  \
+            printf("%s", list_line);                                                                              \
         }
+
 #define JMP_DEF(name, cond) CMD_DEF(name, LBL_ARG,)
 
-#include "cmd_def.h"
+        #include "cmd_def.h"
+
         if (cmd[offset - 1] == ':')
         {
             cmd[offset - 1] = '\0';
             AsmLabelUpd(labels_info, cmd, *instr_ptr);
         }
+
 #undef CMD_DEF
+#undef BUF
+#undef IP
+
     }
 
     AsmDoFixups(labels_info, buf);
@@ -247,4 +291,14 @@ REG_TYPE AsmRegFind(const char *reg_name)
             return i;
 
     return -1;
+}
+
+void AsmOut(Asm *asmbler, const char *filename)
+{
+    int fd_output = creat(filename, S_IRWXU);
+
+    write(fd_output, (void*) &asmbler->instr_ptr, BYTES_SIZE);
+    write(fd_output, (void*)  asmbler->buf,       asmbler->instr_ptr);
+
+    close(fd_output);
 }

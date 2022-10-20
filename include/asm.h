@@ -38,7 +38,9 @@ const int NO_LABEL       = -2,
 
 void AsmCtor(Asm *asmbler, const char *filename, int *err);
 void AsmDtor(Asm *asmbler);
+
 void AsmRun(Asm *asmbler);
+void AsmOut(Asm *asmbler, const char *filename);
 
 LBL_TYPE AsmLabelProcess (LabelsInfo *labels_info, const char* str_label, int32_t instr_ptr);
 int32_t     AsmArgProcess   (const char *str, CMD_FLAGS_TYPE *flags, char *buf, int32_t *instr_ptr);

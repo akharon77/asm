@@ -44,12 +44,7 @@ int main(int argc, const char* argv[])
 
     AsmRun(&asmbler);
 
-    int fd_output = creat(output_filename, S_IRWXU);
-
-    write(fd_output, (void*) &asmbler.instr_ptr, BYTES_SIZE);
-    write(fd_output, asmbler.buf,                asmbler.instr_ptr);
-
-    close(fd_output);
+    AsmOut(&asmbler, output_filename);
 
     AsmDtor(&asmbler);
 
