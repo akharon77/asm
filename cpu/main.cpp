@@ -9,11 +9,12 @@ int main()
     Proc cpu = {};
     ProcCtor(&cpu, 1024);
 
-#define STK  cpu.stk
-#define BUF  cpu.buf
-#define IP   cpu.instr_ptr
-#define REGS cpu.regs
-#define MEM  cpu.mem
+#define STK     cpu.stk
+#define BUF     cpu.buf
+#define IP      cpu.instr_ptr
+#define REGS    cpu.regs
+#define MEM     cpu.mem
+#define CALLSTK cpu.callstk
 
     ProcLoadFromFile(&cpu, "output.bin");
 
@@ -52,6 +53,7 @@ int main()
 #undef IP
 #undef REGS
 #undef MEM
+#undef CALLST
 
     }
 

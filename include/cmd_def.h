@@ -58,7 +58,7 @@ CMD_DEF(CMP,   TWO_ARG,
             GET_VAL(flags2, val2);
 
             if (val1 == val2)
-                RFLAGS |=   1 << ZF_IND;
+                RFLAGS |=   (1 << ZF_IND);
             else
                 RFLAGS &= ~(1 << ZF_IND);
 
@@ -111,6 +111,20 @@ CMD_DEF(POP,   ONE_ARG,
                 REGS[ARG(REG)] = pop_val;
                 INC(REG);
             }
+        })
+
+CMD_DEF(CALL,  LBL_ARG,
+        {
+            INC(CMD_FLAGS);
+            LBL_TYPE lbl = ARG(LBL);
+            INC(LBL);
+            PUSH_CALLSTK(IP);
+            IP = lbl;
+        })
+CMD_DEF(RET,   ZERO_ARG,
+        {
+            INC(CMD_FLAGS);
+            IP = POP_CALLSTK;
         })
 
 JMP_DEF(JMP,   true)

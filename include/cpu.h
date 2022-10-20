@@ -6,16 +6,17 @@
 
 struct Proc
 {
-    Stack     stk;
+    Stack      stk;
+    Stack      callstk;
 
-    SIZE_TYPE instr_ptr;
+    SIZE_TYPE  instr_ptr;
 
-    SIZE_TYPE buf_size;
-    char      buf[MAX_PROG_SIZE];
+    SIZE_TYPE  buf_size;
+    char       buf[MAX_PROG_SIZE];
 
-    VAL_TYPE  regs[N_REG];
+    VAL_TYPE   regs[N_REG];
 
-    SIZE_TYPE mem_size;
+    SIZE_TYPE  mem_size;
     VAL_TYPE  *mem;
 };
 

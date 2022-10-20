@@ -21,23 +21,25 @@ enum REGS
 };
 #undef REG_DEF
 
-#define COMMA           ,
-#define CUR             BUF[IP]
-#define ARG(type)       (*((type##_TYPE*) &(CUR)))
-#define INC(type)       IP += BYTES_##type
-#define REG(name)       REGS[REG_##name]
+#define COMMA             ,
+#define CUR               BUF[IP]
+#define ARG(type)         (*((type##_TYPE*) &(CUR)))
+#define INC(type)         IP += BYTES_##type
+#define REG(name)         REGS[REG_##name]
 
-#define PUSH(val)       StackPush (&STK, val)
-#define TOP             StackTop  (&STK)
-#define POP             StackPop  (&STK)
+#define PUSH_CALLSTK(val) StackPush (&CALLSTK, val)
+#define PUSH(val)         StackPush (&STK, val)
+#define TOP               StackTop  (&STK)
+#define POP               StackPop  (&STK)
+#define POP_CALLSTK       StackPop  (&CALLSTK)
 
-#define RFLAGS          REG(RFLAGS)
+#define RFLAGS            REG(RFLAGS)
 
-#define CF_IND          0
-#define ZF_IND          1
+#define CF_IND            0
+#define ZF_IND            1
 
-#define CF              ((RFLAGS >> CF_IND) & 1)
-#define ZF              ((RFLAGS >> ZF_IND) & 1)
+#define CF                ((RFLAGS >> CF_IND) & 1)
+#define ZF                ((RFLAGS >> ZF_IND) & 1)
 
 #define GET_VAL(flags, var)     \
     if (flags & FLG_IMM)        \

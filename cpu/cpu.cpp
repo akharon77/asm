@@ -9,7 +9,8 @@ void ProcCtor(Proc *cpu, SIZE_TYPE mem_size)
 
     cpu->instr_ptr = 0;
 
-    StackCtor(&cpu->stk, 16);
+    StackCtor(&cpu->stk,     16);
+    StackCtor(&cpu->callstk, 16);
 
     memset(cpu->buf, 0, MAX_PROG_SIZE);
 
@@ -28,6 +29,7 @@ void ProcDtor(Proc *cpu)
     cpu->instr_ptr = 0;
 
     StackDtor(&cpu->stk);
+    StackDtor(&cpu->callstk);
 
     cpu->mem_size = 0;
     free(cpu->mem);
