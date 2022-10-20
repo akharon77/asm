@@ -9,11 +9,20 @@
 #include "iostr.h"
 
 #define REG_DEF(name) #name,
-const char *regs_name[N_REG] = 
+const char * const regs_name[] = 
     {
 #include "reg_def.h"
     };
 #undef REG_DEF
+
+#define CMD_DEF(name, arg, code) arg,
+#define JMP_DEF(name, cond) LBL_ARG,
+const int32_t ARG_TYPE[] =
+    {
+#include "cmd_def.h"
+    };
+#undef CMD_DEF
+#undef JMP_DEF
 
 void AsmCtor(Asm *asmbler, const char *filename, int *err)
 {
@@ -97,8 +106,6 @@ void AsmRun(Asm *asmbler)
                     *instr_ptr += BYTES_LBL;                                                                      \
                 }                                                                                                 \
             }                                                                                                     \
-                                                                                                                  \
-            AsmLineList(buf, text->lines[i].ptr, instr_ptr_cmd, list_line, arg);                                  \
         }
 
 #define JMP_DEF(name, cond) CMD_DEF(name, LBL_ARG,)
@@ -112,12 +119,24 @@ void AsmRun(Asm *asmbler)
         }
 
 #undef CMD_DEF
-#undef BUF
 #undef IP
 
     }
 
     AsmDoFixups(labels_info, buf);
+
+#define IP instr_ptr_cmd
+    int32_t instr_ptr_cmd = 0;
+    for (int i = 0; i < text->nlines; ++i)
+    {
+        if (text->lines[i].ptr[text->lines[i].len - 1] == ':')
+            continue;
+        char list_line[2 * MAX_LINE_LEN] = "";
+        AsmLineList(buf, text->lines[i].ptr, &instr_ptr_cmd, list_line, ARG_TYPE[ARG(CMD_CONT)]);
+    }
+
+#undef BUF
+
 }
 
 LBL_TYPE AsmLabelProcess(LabelsInfo *labels_info, const char* str_label, int32_t instr_ptr)
@@ -315,7 +334,16 @@ void AsmOut(Asm *asmbler, const char *filename)
     close(fd_output);
 }
 
-void AsmLineList(char *buf, const char *cmd, int instr_ptr_cmd, char list_line[], int arg)
+#define LIST_ARG(type)                                                                                             \
+    do {                                                                                                           \
+        sprintf(list_line + list_line_offset, "%0*x ", BYTES_##type * 2, *((type##_TYPE*) (buf + *instr_ptr_cmd))); \
+        *instr_ptr_cmd    += BYTES_##type;                                                                          \
+        list_line[list_line_offset + BYTES_##type * 2 + 1] = ' ';                                                  \
+    } while (0)
+
+#define LIST_INC(type) list_line_offset += BYTES_##type * 2 + 1
+
+void AsmLineList(char *buf, const char *cmd, int *instr_ptr_cmd, char list_line[], int arg)
 {
     ASSERT(buf       != NULL);
     ASSERT(cmd       != NULL);
@@ -324,34 +352,53 @@ void AsmLineList(char *buf, const char *cmd, int instr_ptr_cmd, char list_line[]
     int32_t list_line_offset = 0;                                                                         
     memset(list_line, ' ', 2 * MAX_LINE_LEN);
 
-    sprintf(list_line, "%0*x ", BYTES_CMD_CONT * 2, *((CMD_CONT_TYPE*) (buf + instr_ptr_cmd)));                                     
-    list_line_offset += BYTES_CMD_CONT * 2 + 1;  // 9
-    instr_ptr_cmd    += BYTES_CMD_CONT;                                                                           
-    list_line[list_line_offset] = ' ';
+    LIST_ARG(CMD_CONT);
+    LIST_INC(CMD_CONT);
+    // sprintf(list_line, "%0*x ", BYTES_CMD_CONT * 2, *((CMD_CONT_TYPE*) (buf + instr_ptr_cmd)));                                     
+    // list_line_offset += BYTES_CMD_CONT * 2 + 1;  // 9
+    // instr_ptr_cmd    += BYTES_CMD_CONT;                                                                           
+    // list_line[list_line_offset] = ' ';
                                                                                                           
-    CMD_FLAGS_TYPE flags = *((CMD_FLAGS_TYPE*) (buf + instr_ptr_cmd));                                    
-    sprintf(list_line + list_line_offset, "%0*x ", BYTES_CMD_FLAGS * 2, flags);                                                 
-    list_line_offset += BYTES_CMD_FLAGS * 2 + 1;                                                                                
-    instr_ptr_cmd    += BYTES_CMD_FLAGS;                                                                     
-    list_line[list_line_offset] = ' ';
+    CMD_FLAGS_TYPE flags = *((CMD_FLAGS_TYPE*) (buf + *instr_ptr_cmd));                                    
+
+    LIST_ARG(CMD_FLAGS);
+    LIST_INC(CMD_FLAGS);
+    // sprintf(list_line + list_line_offset, "%0*x ", BYTES_CMD_FLAGS * 2, flags);                                                 
+    // list_line_offset += BYTES_CMD_FLAGS * 2 + 1;                                                                                
+    // instr_ptr_cmd    += BYTES_CMD_FLAGS;                                                                     
+    // list_line[list_line_offset] = ' ';
+
+    if (arg == LBL_ARG)
+    {
+        LIST_ARG(LBL);
+        // sprintf(list_line + list_line_offset, "%0*x ", BYTES_LBL * 2, *((LBL_TYPE*) (buf + instr_ptr_cmd)));              
+        // instr_ptr_cmd    += BYTES_LBL;                                                                       
+        // list_line[list_line_offset + BYTES_LBL * 2 + 1] = ' ';
+    }
+    LIST_INC(LBL);
+    // list_line_offset += BYTES_LBL * 2 + 1;                                                                            
                                                                                                           
     for (int i = 0; i < TWO_ARG; ++i)
     {
         if ((flags >> (FLAGS_POS_OCCUP * i)) & FLG_IMM)                                                                                  
         {                                                                                                     
-            sprintf(list_line + list_line_offset, "%0*x ", BYTES_VAL * 2, *((VAL_TYPE*) (buf + instr_ptr_cmd)));              
-            instr_ptr_cmd    += BYTES_VAL;                                                                       
-            list_line[list_line_offset + BYTES_VAL * 2 + 1] = ' ';
+            LIST_ARG(VAL);
+            // sprintf(list_line + list_line_offset, "%0*x ", BYTES_VAL * 2, *((VAL_TYPE*) (buf + instr_ptr_cmd)));              
+            // instr_ptr_cmd    += BYTES_VAL;                                                                       
+            // list_line[list_line_offset + BYTES_VAL * 2 + 1] = ' ';
         }                                                                                                     
-        list_line_offset += BYTES_VAL * 2 + 1;                                                                            
+        LIST_INC(VAL);
+        // list_line_offset += BYTES_VAL * 2 + 1;                                                                            
                                                                                                               
         if ((flags >> (FLAGS_POS_OCCUP * i)) & FLG_REG)                                                                                  
         {                                                                                                     
-            sprintf(list_line + list_line_offset, "%0*x ", BYTES_REG * 2, *((REG_TYPE*) (buf + instr_ptr_cmd)));              
-            instr_ptr_cmd    += BYTES_REG;                                                                       
-            list_line[list_line_offset + BYTES_REG * 2 + 1] = ' ';
+            LIST_ARG(REG);
+            // sprintf(list_line + list_line_offset, "%0*x ", BYTES_REG * 2, *((REG_TYPE*) (buf + instr_ptr_cmd)));              
+            // instr_ptr_cmd    += BYTES_REG;                                                                       
+            // list_line[list_line_offset + BYTES_REG * 2 + 1] = ' ';
         }                                                                                                     
-        list_line_offset += BYTES_REG * 2 + 1;                                                                            
+        LIST_INC(REG);
+        // list_line_offset += BYTES_REG * 2 + 1;                                                                            
     }
                                                                                                           
     sprintf(list_line + list_line_offset, "| %s\n", cmd);                                                 
