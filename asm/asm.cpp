@@ -17,6 +17,10 @@ const char *regs_name[N_REG] =
 
 void AsmCtor(Asm *asmbler, const char *filename, int *err)
 {
+    ASSERT(asmbler  != NULL);
+    ASSERT(filename != NULL);
+    ASSERT(err      != NULL);
+
     asmbler->instr_ptr = 0;
 
     memset(asmbler->buf, 0, MAX_PROG_SIZE);
@@ -30,6 +34,8 @@ void AsmCtor(Asm *asmbler, const char *filename, int *err)
 
 void AsmDtor(Asm *asmbler)
 {
+    ASSERT(asmbler != NULL);
+
     memset(asmbler->buf, -1, MAX_PROG_SIZE);
 
     TextInfoDtor   (&asmbler->text);
@@ -38,6 +44,8 @@ void AsmDtor(Asm *asmbler)
 
 void AsmRun(Asm *asmbler)
 {
+    ASSERT(asmbler != NULL);
+
     TextInfo   *text        = &asmbler->text;
     LabelsInfo *labels_info = &asmbler->labels_info;
     char       *buf         =  asmbler->buf;
@@ -114,6 +122,9 @@ void AsmRun(Asm *asmbler)
 
 LBL_TYPE AsmLabelProcess(LabelsInfo *labels_info, const char* str_label, int32_t instr_ptr)
 {
+    ASSERT(labels_info != NULL);
+    ASSERT(str_label   != NULL);
+
     char label_name[MAX_LABEL_LEN] = "";
     sscanf(str_label, "%s", label_name);
 
@@ -129,6 +140,8 @@ LBL_TYPE AsmLabelProcess(LabelsInfo *labels_info, const char* str_label, int32_t
 
 void AsmFixupAdd(LabelsInfo *labels_info, LBL_TYPE label_id, int32_t instr_ptr)
 {
+    ASSERT(labels_info != NULL);
+
     labels_info->fixups[labels_info->n_fixups] = 
         {
             label_id,
@@ -140,6 +153,8 @@ void AsmFixupAdd(LabelsInfo *labels_info, LBL_TYPE label_id, int32_t instr_ptr)
 
 LBL_TYPE AsmLabelFind(LabelsInfo *labels_info, const char *str_label)
 {
+    ASSERT(labels_info != NULL);
+
     char label_name[MAX_LABEL_LEN] = "";
     sscanf(str_label, "%s", label_name);
 
@@ -152,6 +167,9 @@ LBL_TYPE AsmLabelFind(LabelsInfo *labels_info, const char *str_label)
 
 void AsmLabelAdd(LabelsInfo *labels_info, const char *str_label, LBL_TYPE pos)
 {
+    ASSERT(labels_info != NULL);
+    ASSERT(str_label   != NULL);
+
     strcpy(labels_info->labels[labels_info->n_labels].name, str_label);
     labels_info->labels[labels_info->n_labels].pos = pos;
     ++labels_info->n_labels;
@@ -159,6 +177,9 @@ void AsmLabelAdd(LabelsInfo *labels_info, const char *str_label, LBL_TYPE pos)
 
 LBL_TYPE AsmLabelGet(LabelsInfo *labels_info, const char *label_name)
 {
+    ASSERT(labels_info != NULL);
+    ASSERT(label_name  != NULL);
+
     LBL_TYPE label_id = AsmLabelFind(labels_info, label_name);
 
     if (label_id != NO_LABEL)
@@ -170,12 +191,18 @@ LBL_TYPE AsmLabelGet(LabelsInfo *labels_info, const char *label_name)
 
 void AsmLabelUpd(LabelsInfo *labels_info, const char *str_label, LBL_TYPE pos)
 {
+    ASSERT(labels_info != NULL);
+    ASSERT(str_label   != NULL);
+
     LBL_TYPE label_id = AsmLabelGet(labels_info, str_label);
     labels_info->labels[label_id].pos = pos;
 }
 
 void AsmDoFixups(LabelsInfo *labels_info, char *buf)
 {
+    ASSERT(labels_info != NULL);
+    ASSERT(buf         != NULL);
+
     for (int32_t i = 0; i < labels_info->n_fixups; ++i)
     {
         LBL_TYPE label_id = labels_info->fixups[i].label_id;
@@ -185,17 +212,24 @@ void AsmDoFixups(LabelsInfo *labels_info, char *buf)
 
 void LabelsInfoCtor(LabelsInfo *labels_info)
 {
+    ASSERT(labels_info != NULL);
+
     labels_info->n_labels = 0;
     labels_info->n_fixups = 0;
 }
 
 void LabelsInfoDtor(LabelsInfo *labels_info)
 {
-
+    ASSERT(labels_info != NULL);
 }
 
 int32_t AsmArgProcess(const char *str, CMD_FLAGS_TYPE *flags, char *buf, int32_t *instr_ptr)
 {
+    ASSERT(str       != NULL);
+    ASSERT(flags     != NULL);
+    ASSERT(buf       != NULL);
+    ASSERT(instr_ptr != NULL);
+
     *flags = 0;
     char arg[MAX_LINE_LEN] = "";
     int32_t offset = 0;
@@ -259,6 +293,8 @@ int32_t AsmArgProcess(const char *str, CMD_FLAGS_TYPE *flags, char *buf, int32_t
 
 REG_TYPE AsmRegFind(const char *reg_name)
 {
+    ASSERT(reg_name != NULL);
+
     for (int32_t i = 0; i < N_REG; ++i)
         if (strcasecmp(regs_name[i], reg_name) == 0)
             return i;
@@ -268,6 +304,9 @@ REG_TYPE AsmRegFind(const char *reg_name)
 
 void AsmOut(Asm *asmbler, const char *filename)
 {
+    ASSERT(asmbler  != NULL);
+    ASSERT(filename != NULL);
+
     int fd_output = creat(filename, S_IRWXU);
 
     write(fd_output, (void*) &asmbler->instr_ptr, BYTES_SIZE);
@@ -278,6 +317,10 @@ void AsmOut(Asm *asmbler, const char *filename)
 
 void AsmLineList(char *buf, const char *cmd, int instr_ptr_cmd, char list_line[], int arg)
 {
+    ASSERT(buf       != NULL);
+    ASSERT(cmd       != NULL);
+    ASSERT(list_line != NULL);
+
     int32_t list_line_offset = 0;                                                                         
     memset(list_line, ' ', 2 * MAX_LINE_LEN);
 
