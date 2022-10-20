@@ -59,7 +59,7 @@ void AsmRun(Asm *asmbler)
         {                                                                                                         \
             ARG(CMD) = CMD_##name;                                                                                \
             /**((CMD_TYPE*) (buf + *instr_ptr)) = CMD_##name;*/                                                   \
-            dprintf(2, "%s found\n", #name);                                                                      \
+            /*dprintf(2, "%s found\n", #name);*/                                                                  \
                                                                                                                   \
             SIZE_TYPE instr_ptr_cmd = *instr_ptr;                                                                 \
                                                                                                                   \
@@ -69,13 +69,13 @@ void AsmRun(Asm *asmbler)
                                                                                                                   \
             if (arg != ZERO_ARG)                                                                                  \
             {                                                                                                     \
-                dprintf(2, "no zero arg\n");                                                                      \
+                /*dprintf(2, "no zero arg\n");*/                                                                  \
                 if (arg != LBL_ARG)                                                                               \
                 {                                                                                                 \
-                    dprintf(2, "no lbl arg\n");                                                                   \
+                    /*dprintf(2, "no lbl arg\n");*/                                                               \
                     for (int32_t j = 0; j < arg; ++j)                                                             \
                     {                                                                                             \
-                        dprintf(2, "j = %d\n");                                                                   \
+                        /*dprintf(2, "j = %d\n");*/                                                               \
                         CMD_FLAGS_TYPE flags = 0;                                                                 \
                         offset += AsmArgProcess(text->lines[i].ptr + offset, &flags, buf, instr_ptr);             \
                                                                                                                   \
@@ -90,34 +90,7 @@ void AsmRun(Asm *asmbler)
                 }                                                                                                 \
             }                                                                                                     \
                                                                                                                   \
-            int32_t list_line_offset = 0;                                                                         \
-                                                                                                                  \
-            sprintf(list_line, "%8x ", *((CMD_TYPE*) (buf + instr_ptr_cmd)));                                     \
-            instr_ptr_cmd += BYTES_CMD;                                                                           \
-            list_line_offset += 9;                                                                                \
-                                                                                                                  \
-            CMD_FLAGS_TYPE flags = *((CMD_FLAGS_TYPE*) (buf + instr_ptr_cmd));                                    \
-            sprintf(list_line + list_line_offset, "%8x ", flags);                                                 \
-            list_line_offset += 9;                                                                                \
-            instr_ptr_cmd += BYTES_CMD_FLAGS;                                                                     \
-                                                                                                                  \
-            if (flags & FLG_IMM)                                                                                  \
-            {                                                                                                     \
-                sprintf(list_line + list_line_offset, "%8x ", *((VAL_TYPE*) (buf + instr_ptr_cmd)));              \
-                instr_ptr_cmd += BYTES_VAL;                                                                       \
-                list_line_offset += 9;                                                                            \
-            }                                                                                                     \
-                                                                                                                  \
-            if (flags & FLG_REG)                                                                                  \
-            {                                                                                                     \
-                sprintf(list_line + list_line_offset, "%8x ", *((REG_TYPE*) (buf + instr_ptr_cmd)));              \
-                instr_ptr_cmd += BYTES_REG;                                                                       \
-                list_line_offset += 9;                                                                            \
-            }                                                                                                     \
-                                                                                                                  \
-            sprintf(list_line + list_line_offset, "| %s\n", cmd);                                                 \
-                                                                                                                  \
-            printf("%s", list_line);                                                                              \
+            AsmLineList(buf, text->lines[i].ptr, instr_ptr_cmd, list_line, arg);                                  \
         }
 
 #define JMP_DEF(name, cond) CMD_DEF(name, LBL_ARG,)
@@ -301,4 +274,44 @@ void AsmOut(Asm *asmbler, const char *filename)
     write(fd_output, (void*)  asmbler->buf,       asmbler->instr_ptr);
 
     close(fd_output);
+}
+
+void AsmLineList(char *buf, const char *cmd, int instr_ptr_cmd, char list_line[], int arg)
+{
+    int32_t list_line_offset = 0;                                                                         
+    memset(list_line, ' ', 2 * MAX_LINE_LEN);
+
+    sprintf(list_line, "%0*x ", BYTES_CMD_CONT * 2, *((CMD_CONT_TYPE*) (buf + instr_ptr_cmd)));                                     
+    list_line_offset += BYTES_CMD_CONT * 2 + 1;  // 9
+    instr_ptr_cmd    += BYTES_CMD_CONT;                                                                           
+    list_line[list_line_offset] = ' ';
+                                                                                                          
+    CMD_FLAGS_TYPE flags = *((CMD_FLAGS_TYPE*) (buf + instr_ptr_cmd));                                    
+    sprintf(list_line + list_line_offset, "%0*x ", BYTES_CMD_FLAGS * 2, flags);                                                 
+    list_line_offset += BYTES_CMD_FLAGS * 2 + 1;                                                                                
+    instr_ptr_cmd    += BYTES_CMD_FLAGS;                                                                     
+    list_line[list_line_offset] = ' ';
+                                                                                                          
+    for (int i = 0; i < TWO_ARG; ++i)
+    {
+        if ((flags >> (FLAGS_POS_OCCUP * i)) & FLG_IMM)                                                                                  
+        {                                                                                                     
+            sprintf(list_line + list_line_offset, "%0*x ", BYTES_VAL * 2, *((VAL_TYPE*) (buf + instr_ptr_cmd)));              
+            instr_ptr_cmd    += BYTES_VAL;                                                                       
+            list_line[list_line_offset + BYTES_VAL * 2 + 1] = ' ';
+        }                                                                                                     
+        list_line_offset += BYTES_VAL * 2 + 1;                                                                            
+                                                                                                              
+        if ((flags >> (FLAGS_POS_OCCUP * i)) & FLG_REG)                                                                                  
+        {                                                                                                     
+            sprintf(list_line + list_line_offset, "%0*x ", BYTES_REG * 2, *((REG_TYPE*) (buf + instr_ptr_cmd)));              
+            instr_ptr_cmd    += BYTES_REG;                                                                       
+            list_line[list_line_offset + BYTES_REG * 2 + 1] = ' ';
+        }                                                                                                     
+        list_line_offset += BYTES_REG * 2 + 1;                                                                            
+    }
+                                                                                                          
+    sprintf(list_line + list_line_offset, "| %s\n", cmd);                                                 
+                                                                                                          
+    printf("%s", list_line);                                                                              
 }

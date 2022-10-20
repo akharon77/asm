@@ -33,7 +33,6 @@ enum REGS
 
 #define RFLAGS          REG(RFLAGS)
 
-// temporary cringe
 #define CF_IND          0
 #define ZF_IND          1
 
