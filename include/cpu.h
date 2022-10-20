@@ -34,6 +34,11 @@
     {                           \
         var += REGS[ARG(REG)];  \
         INC(REG);               \
+    }                           \
+                                \
+    if (flags & FLG_MEM)        \
+    {                           \
+        var = MEM[var];         \
     }
 
 struct Proc

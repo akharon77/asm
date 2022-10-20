@@ -47,6 +47,11 @@ int main()
 
 #undef CMD_DEF
 #undef JMP_DEF
+#undef STK
+#undef BUF
+#undef IP
+#undef REGS
+#undef MEM
 
     }
 

@@ -54,14 +54,8 @@ CMD_DEF(CMP,   TWO_ARG,
             flags2 = (flags0 >> FLAGS_POS_OCCUP) & FLAGS_MASK;
 
             GET_VAL(flags1, val1);
-// TODO  исправить оно неправильно работает!!!!
-            if (flags1 & FLG_MEM)
-                val1 = MEM[val1];
 
             GET_VAL(flags2, val2);
-
-            if (flags2 & FLG_MEM)
-                val2 = MEM[val2];
 
             if (val1 == val2)
                 RFLAGS |=   1 << ZF_IND;
@@ -84,9 +78,6 @@ CMD_DEF(PUSH,  ONE_ARG,
 
             GET_VAL(flags, val);
 
-            if (flags & FLG_MEM)
-                val = MEM[val];
-                
             PUSH(val);
         })
 CMD_DEF(POP,   ONE_ARG,
@@ -97,15 +88,29 @@ CMD_DEF(POP,   ONE_ARG,
             flags = ARG(CMD_FLAGS) & FLAGS_MASK;
             INC(CMD_FLAGS);
 
-            GET_VAL(flags, val);
-
             VAL_TYPE pop_val = POP;
 
             if (flags & FLG_MEM)
-                MEM[val]  = pop_val;
+            {
+                if (flags & FLG_IMM)
+                {                           
+                    val += ARG(VAL);        
+                    INC(VAL);               
+                }                           
+                                            
+                if (flags & FLG_REG)        
+                {                           
+                    val += REGS[ARG(REG)];  
+                    INC(REG);               
+                }                           
 
-            if (flags & FLG_REG)
-                REGS[val] = pop_val;
+                MEM[val]  = pop_val;
+            }
+            else if (flags & FLG_REG)
+            {
+                REGS[ARG(REG)] = pop_val;
+                INC(REG);
+            }
         })
 
 JMP_DEF(JMP,   true)
