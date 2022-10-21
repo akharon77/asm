@@ -11,9 +11,10 @@ const int MAX_LINE_LEN = 128;
 
 const Option EXEC_OPTIONS[] = 
     {
-        {"--file",        "-f",  FILE_OPTION,             "from file (default: input.asm)"                   },
-        {"--help",        "-h",  HELP_OPTION,             "show help"                   },
-        {"--output",      "-o",  OUTPUT_FILE_OPTION,      "output text to file (default: output.bin)"         }
+        {"--file",        "-f",  INPUT_FILE_OPTION,       "from file (default: input.asm)"                          },
+        {"--help",        "-h",  HELP_OPTION,             "show help"                                               },
+        {"--output",      "-o",  OUTPUT_FILE_OPTION,      "output text to file (default: output.bin)"               },
+        {"--listing",     "-l",  LISTING_FILE_OPTION,     "output listing of program to file (default: listing.txt)"}
     };
  
 ErrorTag ERROR_TAGS[] =

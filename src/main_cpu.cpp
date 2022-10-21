@@ -3,11 +3,12 @@
 #include "cpu.h"
 #include "cmds.h"
 #include "stack.h"
+#include "iostr.h"
 
 int main()
 {
     Proc cpu = {};
-    ProcCtor(&cpu, 1024);
+    ProcCtor(&cpu, mem_size);
 
 #define STK     cpu.stk
 #define BUF     cpu.buf

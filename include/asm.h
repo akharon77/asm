@@ -36,15 +36,17 @@ struct Asm
 const int NO_LABEL       = -2,
           NOT_INIT_LABEL = -1;
 
-void AsmCtor(Asm *asmbler, const char *filename, int *err);
-void AsmDtor(Asm *asmbler);
+void AsmCtor             (Asm *asmbler, const char *filename, int *err);
+void AsmDtor             (Asm *asmbler);
 
-void AsmRun(Asm *asmbler);
-void AsmOut(Asm *asmbler, const char *filename);
+void AsmRun              (Asm *asmbler);
+void AsmOut              (Asm *asmbler, const char *filename);
 
 LBL_TYPE AsmLabelProcess (LabelsInfo *labels_info, const char* str_label, int32_t instr_ptr);
 int32_t  AsmArgProcess   (const char *str, CMD_FLAGS_TYPE *flags, char *buf, int32_t *instr_ptr);
-void     AsmLineList     (char *buf, const char *cmd, int *instr_ptr_cmd, char list_line[], int arg);
+
+void     AsmListing      (Asm *asmbler, const char *filename);
+int      AsmLineList     (char buf[], const char cmd[], int *instr_ptr_cmd, char list_line[], int arg);
 
 void     AsmDoFixups     (LabelsInfo *labels_info, char *buf);
 void     AsmFixupAdd     (LabelsInfo *labels_info, LBL_TYPE label_id, int32_t instr_ptr);
@@ -54,7 +56,7 @@ void     AsmLabelUpd     (LabelsInfo *labels_info, const char *str_label, LBL_TY
 LBL_TYPE AsmLabelFind    (LabelsInfo *labels_info, const char *str_label);
 void     AsmLabelAdd     (LabelsInfo *labels_info, const char *str_label, LBL_TYPE pos);
 
-REG_TYPE AsmRegFind(const char *reg_name);
+REG_TYPE AsmRegFind      (const char *reg_name);
 
 void     LabelsInfoCtor  (LabelsInfo *labels_info);
 void     LabelsInfoDtor  (LabelsInfo *labels_info);

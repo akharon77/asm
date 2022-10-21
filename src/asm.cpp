@@ -9,7 +9,7 @@
 #include "iostr.h"
 
 #define REG_DEF(name) #name,
-const char * const regs_name[] = 
+const char * const REGS_NAME[] = 
     {
 #include "reg_def.h"
     };
@@ -75,24 +75,15 @@ void AsmRun(Asm *asmbler)
         if (strcasecmp(cmd, #name) == 0)                                                                          \
         {                                                                                                         \
             ARG(CMD) = CMD_##name;                                                                                \
-            /**((CMD_TYPE*) (buf + *instr_ptr)) = CMD_##name;*/                                                   \
-            /*dprintf(2, "%s found\n", #name);*/                                                                  \
-                                                                                                                  \
             SIZE_TYPE instr_ptr_cmd = *instr_ptr;                                                                 \
-                                                                                                                  \
-            /**instr_ptr += BYTES_CMD;*/                                                                          \
-                                                                                                                  \
             INC(CMD);                                                                                             \
                                                                                                                   \
             if (arg != ZERO_ARG)                                                                                  \
             {                                                                                                     \
-                /*dprintf(2, "no zero arg\n");*/                                                                  \
                 if (arg != LBL_ARG)                                                                               \
                 {                                                                                                 \
-                    /*dprintf(2, "no lbl arg\n");*/                                                               \
                     for (int32_t j = 0; j < arg; ++j)                                                             \
                     {                                                                                             \
-                        /*dprintf(2, "j = %d\n");*/                                                               \
                         CMD_FLAGS_TYPE flags = 0;                                                                 \
                         offset += AsmArgProcess(text->lines[i].ptr + offset, &flags, buf, instr_ptr);             \
                                                                                                                   \
@@ -119,24 +110,13 @@ void AsmRun(Asm *asmbler)
         }
 
 #undef CMD_DEF
+
 #undef IP
+#undef BUF
 
     }
 
     AsmDoFixups(labels_info, buf);
-
-#define IP instr_ptr_cmd
-    int32_t instr_ptr_cmd = 0;
-    for (int i = 0; i < text->nlines; ++i)
-    {
-        if (text->lines[i].ptr[text->lines[i].len - 1] == ':')
-            continue;
-        char list_line[2 * MAX_LINE_LEN] = "";
-        AsmLineList(buf, text->lines[i].ptr, &instr_ptr_cmd, list_line, ARG_TYPE[ARG(CMD_CONT)]);
-    }
-
-#undef BUF
-
 }
 
 LBL_TYPE AsmLabelProcess(LabelsInfo *labels_info, const char* str_label, int32_t instr_ptr)
@@ -315,7 +295,7 @@ REG_TYPE AsmRegFind(const char *reg_name)
     ASSERT(reg_name != NULL);
 
     for (int32_t i = 0; i < N_REG; ++i)
-        if (strcasecmp(regs_name[i], reg_name) == 0)
+        if (strcasecmp(REGS_NAME[i], reg_name) == 0)
             return i;
 
     return -1;
@@ -343,65 +323,75 @@ void AsmOut(Asm *asmbler, const char *filename)
 
 #define LIST_INC(type) list_line_offset += BYTES_##type * 2 + 1
 
-void AsmLineList(char *buf, const char *cmd, int *instr_ptr_cmd, char list_line[], int arg)
+int32_t AsmLineList(char buf[], const char cmd[], int *instr_ptr_cmd, char list_line[], int arg)
 {
     ASSERT(buf       != NULL);
     ASSERT(cmd       != NULL);
     ASSERT(list_line != NULL);
 
-    int32_t list_line_offset = 0;                                                                         
-    memset(list_line, ' ', 2 * MAX_LINE_LEN);
+    int32_t list_line_offset = 0;
+    memset(list_line, ' ', 2 * MAX_LINE_LEN + 1);
+
+    sprintf(list_line, "%0*x | ", BYTES_SIZE * 2, *instr_ptr_cmd);
+    LIST_INC(SIZE);
+    list_line_offset += 2; // |\s
 
     LIST_ARG(CMD_CONT);
     LIST_INC(CMD_CONT);
-    // sprintf(list_line, "%0*x ", BYTES_CMD_CONT * 2, *((CMD_CONT_TYPE*) (buf + instr_ptr_cmd)));                                     
-    // list_line_offset += BYTES_CMD_CONT * 2 + 1;  // 9
-    // instr_ptr_cmd    += BYTES_CMD_CONT;                                                                           
-    // list_line[list_line_offset] = ' ';
-                                                                                                          
-    CMD_FLAGS_TYPE flags = *((CMD_FLAGS_TYPE*) (buf + *instr_ptr_cmd));                                    
+    CMD_FLAGS_TYPE flags = *((CMD_FLAGS_TYPE*) (buf + *instr_ptr_cmd));
 
     LIST_ARG(CMD_FLAGS);
     LIST_INC(CMD_FLAGS);
-    // sprintf(list_line + list_line_offset, "%0*x ", BYTES_CMD_FLAGS * 2, flags);                                                 
-    // list_line_offset += BYTES_CMD_FLAGS * 2 + 1;                                                                                
-    // instr_ptr_cmd    += BYTES_CMD_FLAGS;                                                                     
-    // list_line[list_line_offset] = ' ';
 
     if (arg == LBL_ARG)
-    {
         LIST_ARG(LBL);
-        // sprintf(list_line + list_line_offset, "%0*x ", BYTES_LBL * 2, *((LBL_TYPE*) (buf + instr_ptr_cmd)));              
-        // instr_ptr_cmd    += BYTES_LBL;                                                                       
-        // list_line[list_line_offset + BYTES_LBL * 2 + 1] = ' ';
-    }
     LIST_INC(LBL);
-    // list_line_offset += BYTES_LBL * 2 + 1;                                                                            
-                                                                                                          
+
     for (int i = 0; i < TWO_ARG; ++i)
     {
-        if ((flags >> (FLAGS_POS_OCCUP * i)) & FLG_IMM)                                                                                  
-        {                                                                                                     
+        if ((flags >> (FLAGS_POS_OCCUP * i)) & FLG_IMM)
             LIST_ARG(VAL);
-            // sprintf(list_line + list_line_offset, "%0*x ", BYTES_VAL * 2, *((VAL_TYPE*) (buf + instr_ptr_cmd)));              
-            // instr_ptr_cmd    += BYTES_VAL;                                                                       
-            // list_line[list_line_offset + BYTES_VAL * 2 + 1] = ' ';
-        }                                                                                                     
         LIST_INC(VAL);
-        // list_line_offset += BYTES_VAL * 2 + 1;                                                                            
-                                                                                                              
-        if ((flags >> (FLAGS_POS_OCCUP * i)) & FLG_REG)                                                                                  
-        {                                                                                                     
+
+        if ((flags >> (FLAGS_POS_OCCUP * i)) & FLG_REG)
             LIST_ARG(REG);
-            // sprintf(list_line + list_line_offset, "%0*x ", BYTES_REG * 2, *((REG_TYPE*) (buf + instr_ptr_cmd)));              
-            // instr_ptr_cmd    += BYTES_REG;                                                                       
-            // list_line[list_line_offset + BYTES_REG * 2 + 1] = ' ';
-        }                                                                                                     
         LIST_INC(REG);
-        // list_line_offset += BYTES_REG * 2 + 1;                                                                            
     }
-                                                                                                          
-    sprintf(list_line + list_line_offset, "| %s\n", cmd);                                                 
-                                                                                                          
-    printf("%s", list_line);                                                                              
+
+    int32_t cmd_offset = 0;
+    sprintf(list_line + list_line_offset, "| %s\n%n", cmd, &cmd_offset);
+
+    return list_line_offset + cmd_offset;
 }
+
+#define BUF buf
+#define IP  instr_ptr_cmd
+
+void AsmListing(Asm *asmbler, const char *filename)
+{
+    ASSERT(asmbler != NULL);
+    ASSERT(filename != NULL);
+
+    TextInfo *text = &asmbler->text;
+    char     *buf  =  asmbler->buf;
+
+    int fd_inp = creat(filename, S_IRWXU);
+    ASSERT(fd_inp != -1);
+
+    int32_t instr_ptr_cmd = 0;
+    for (int i = 0; i < text->nlines; ++i)
+    {
+        if (text->lines[i].ptr[text->lines[i].len - 1] == ':')
+            continue;
+        char list_line[2 * MAX_LINE_LEN + 1] = "";
+
+        int32_t len = AsmLineList(buf, text->lines[i].ptr, &instr_ptr_cmd, list_line, ARG_TYPE[ARG(CMD_CONT)]);
+
+        write(fd_inp, list_line, len);
+    }
+
+    close(fd_inp);
+}
+
+#undef BUF
+#undef IP
