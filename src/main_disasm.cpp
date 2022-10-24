@@ -27,7 +27,7 @@ int main(int argc, const char *argv[])
     if (options[OUTPUT_FILE_OPTION])
     {
         output_filename = argv[options[OUTPUT_FILE_OPTION] + 1];
-        fd_output = open(output_filename, 0, O_RDONLY);
+        fd_output = open(output_filename, 0, O_WRONLY);
     }
 
     Proc cpu = {};
