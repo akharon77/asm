@@ -34,10 +34,10 @@ int main(int argc, const char* argv[])
 
     Proc cpu = {};
 
-    int mem_size = 2048;  // magic??
+    int mem_size = DEFAULT_MEM_SIZE;
 
     if (options[VMEM_OPTION])
-        mem_size = 80*24;  // magic??
+        mem_size = WIDTH * HEIGHT;
     if (options[MEM_OPTION])
         mem_size = atoi(argv[options[MEM_OPTION] + 1]);
 

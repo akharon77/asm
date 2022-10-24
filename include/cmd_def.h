@@ -38,6 +38,17 @@ CMD_DEF(OUT,  ZERO_ARG,
             INC(CMD_FLAGS);
             printf("%d\n" COMMA TOP);
         })
+CMD_DEF(VMOUT, ZERO_ARG,
+        {
+            INC(CMD_FLAGS);
+            for (int x = 0; x < HEIGHT; ++x)
+                for (int y = 0; y < WIDTH; ++y)
+                    if (MEM[x * WIDTH + y])
+                        putc('#' COMMA stdin);
+                    else
+                        putc('.' COMMA stdin);
+
+        })
 CMD_DEF(HLT,  ZERO_ARG,
         {
             INC(CMD_FLAGS);

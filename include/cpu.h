@@ -5,6 +5,11 @@
 #include "iostr.h"
 #include "stack.h"
 
+const int WIDTH  = 80;
+const int HEIGHT = 24;
+
+const int DEFAULT_MEM_SIZE = 2048;
+
 enum OPTIONS
 {
     INPUT_FILE_OPTION,
