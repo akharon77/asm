@@ -18,13 +18,6 @@ const Option EXEC_OPTIONS[] =
  
 const size_t N_EXEC_OPTIONS = sizeof(EXEC_OPTIONS) / sizeof(Option);
 
-#define REG_DEF(name) #name,
-const char * const REGS_NAME[] = 
-    {
-#include "reg_def.h"
-    };
-#undef REG_DEF
-
 #define CMD_DEF(name, arg, code) arg,
 #define JMP_DEF(name, cond) LBL_ARG,
 const int32_t ARG_TYPE[] =

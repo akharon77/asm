@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+extern const char* const REGS_NAME[];
+
 #define CMD_DEF(name, arg, code) CMD_##name,
 #define JMP_DEF(name, cond)      CMD_DEF(name,,)
 enum CMDS

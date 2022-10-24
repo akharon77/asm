@@ -13,8 +13,8 @@ enum OPTIONS
     N_OPTIONS
 };
 
-extern const Option   EXEC_OPTIONS[];
-extern const size_t   N_EXEC_OPTIONS;
+extern const Option       EXEC_OPTIONS[];
+extern const size_t       N_EXEC_OPTIONS;
 
 struct Label
 {
