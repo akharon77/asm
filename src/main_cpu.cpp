@@ -36,10 +36,10 @@ int main(int argc, const char* argv[])
 
     int mem_size = DEFAULT_MEM_SIZE;
 
-    if (options[VMEM_OPTION])
-        mem_size = WIDTH * HEIGHT;
     if (options[MEM_OPTION])
         mem_size = atoi(argv[options[MEM_OPTION] + 1]);
+    if (options[VMEM_OPTION])
+        mem_size = max(mem_size, WIDTH * HEIGHT);
 
     ProcCtor(&cpu, mem_size);
 

@@ -42,11 +42,16 @@ CMD_DEF(VMOUT, ZERO_ARG,
         {
             INC(CMD_FLAGS);
             for (int x = 0; x < HEIGHT; ++x)
+            {
                 for (int y = 0; y < WIDTH; ++y)
+                {
                     if (MEM[x * WIDTH + y])
-                        putc('#' COMMA stdin);
+                        putc('#' COMMA stdout);
                     else
-                        putc('.' COMMA stdin);
+                        putc('.' COMMA stdout);
+                }
+                putc('\n' COMMA stdout);
+            }
 
         })
 CMD_DEF(HLT,  ZERO_ARG,
