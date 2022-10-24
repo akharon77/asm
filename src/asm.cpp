@@ -8,6 +8,16 @@
 #include "cmds.h"
 #include "iostr.h"
 
+const Option EXEC_OPTIONS[] = 
+    {
+        {"--file",        "-f",  INPUT_FILE_OPTION,       "from file (default: input.asm)"                          },
+        {"--help",        "-h",  HELP_OPTION,             "show help"                                               },
+        {"--output",      "-o",  OUTPUT_FILE_OPTION,      "output text to file (default: output.bin)"               },
+        {"--listing",     "-l",  LISTING_FILE_OPTION,     "output listing of program to file (default: listing.txt)"}
+    };
+ 
+const size_t N_EXEC_OPTIONS = sizeof(EXEC_OPTIONS) / sizeof(Option);
+
 #define REG_DEF(name) #name,
 const char * const REGS_NAME[] = 
     {

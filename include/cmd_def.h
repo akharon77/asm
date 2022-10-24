@@ -26,6 +26,12 @@ CMD_DEF(DIV,  ZERO_ARG,
                      val2 = POP;
             PUSH(val2 / val1);
         })
+CMD_DEF(SQRT, ZERO_ARG,
+        {
+            INC(CMD_FLAGS);
+            VAL_TYPE val = POP;
+            PUSH(sqrtl(val));
+        })
 
 CMD_DEF(OUT,  ZERO_ARG,
         {
@@ -50,8 +56,11 @@ CMD_DEF(CMP,   TWO_ARG,
             flags0 = ARG(CMD_FLAGS);
             INC(CMD_FLAGS);
 
-            flags1 =  flags0                     & FLAGS_MASK;
-            flags2 = (flags0 >> FLAGS_POS_OCCUP) & FLAGS_MASK;
+            flags1 = FLAGS(flags0);
+            /*flags1 =  flags0                     & FLAGS_MASK;*/
+
+            flags0 = RET_INC_FLAGS(flags0);
+            flags2 = FLAGS(flags0);
 
             GET_VAL(flags1, val1);
 
@@ -73,7 +82,8 @@ CMD_DEF(PUSH,  ONE_ARG,
             CMD_FLAGS_TYPE flags = 0;
             VAL_TYPE       val   = 0;
 
-            flags = ARG(CMD_FLAGS) & FLAGS_MASK;
+            flags = FLAGS(ARG(CMD_FLAGS));
+            /*flags = ARG(CMD_FLAGS) & FLAGS_MASK;*/
             INC(CMD_FLAGS);
 
             GET_VAL(flags, val);
@@ -85,7 +95,8 @@ CMD_DEF(POP,   ONE_ARG,
             CMD_FLAGS_TYPE flags = 0;
             VAL_TYPE       val   = 0;
 
-            flags = ARG(CMD_FLAGS) & FLAGS_MASK;
+            flags = FLAGS(ARG(CMD_FLAGS));
+            /*flags = ARG(CMD_FLAGS) & FLAGS_MASK;*/
             INC(CMD_FLAGS);
 
             VAL_TYPE pop_val = POP;

@@ -13,7 +13,7 @@ asm.out: obj/main_asm.o obj/asm.o obj/iostr.o
 disasm.out: obj/main_disasm.o obj/asm.o obj/cpu.o obj/stack.o
 	$(CXX) $(CXX_FLAGS) $^ -o $@
 
-cpu.out: obj/main_cpu.o obj/cpu.o obj/stack.o
+cpu.out: obj/main_cpu.o obj/cpu.o obj/stack.o obj/iostr.o
 	$(CXX) $(CXX_FLAGS) $^ -o $@
 
 obj/%.o: src/%.cpp

@@ -4,6 +4,18 @@
 #include "cmds.h"
 #include "iostr.h"
 
+enum OPTIONS
+{
+    INPUT_FILE_OPTION,
+    OUTPUT_FILE_OPTION,
+    LISTING_FILE_OPTION,
+    HELP_OPTION,
+    N_OPTIONS
+};
+
+extern const Option   EXEC_OPTIONS[];
+extern const size_t   N_EXEC_OPTIONS;
+
 struct Label
 {
     char      name[MAX_LABEL_LEN];

@@ -18,7 +18,7 @@ int main(int argc, const char* argv[])
 
     int options[N_EXEC_OPTIONS] = {};
 
-    bool ok = GetOptions(argc, argv, options);
+    bool ok = GetOptions(argc, argv, options, EXEC_OPTIONS, N_EXEC_OPTIONS);
     if (!ok)
     {
         printf(RED "Wrong arguments\n" NORMAL);

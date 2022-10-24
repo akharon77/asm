@@ -2,7 +2,20 @@
 #define CPU_H
 
 #include "cmds.h"
+#include "iostr.h"
 #include "stack.h"
+
+enum OPTIONS
+{
+    INPUT_FILE_OPTION,
+    HELP_OPTION,
+    MEM_OPTION,
+    VMEM_OPTION,
+    N_OPTIONS
+};
+
+extern const Option EXEC_OPTIONS[];
+extern const size_t N_EXEC_OPTIONS;
 
 struct Proc
 {

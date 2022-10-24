@@ -9,14 +9,6 @@
 
 const int MAX_LINE_LEN = 128;
 
-const Option EXEC_OPTIONS[] = 
-    {
-        {"--file",        "-f",  INPUT_FILE_OPTION,       "from file (default: input.asm)"                          },
-        {"--help",        "-h",  HELP_OPTION,             "show help"                                               },
-        {"--output",      "-o",  OUTPUT_FILE_OPTION,      "output text to file (default: output.bin)"               },
-        {"--listing",     "-l",  LISTING_FILE_OPTION,     "output listing of program to file (default: listing.txt)"}
-    };
- 
 ErrorTag ERROR_TAGS[] =
     {
         {"",                                            NO_ERROR                },
@@ -31,18 +23,16 @@ ErrorTag ERROR_TAGS[] =
 
 const char* ERRORS[N_ERRORS] = {};
 
-const size_t N_EXEC_OPTIONS = sizeof(EXEC_OPTIONS) / sizeof(Option);
-
-bool GetOptions(const int argc, const char *argv[], int optionsInd[])
+bool GetOptions(const int argc, const char *argv[], int optionsInd[], const Option exec_options[], int n_exec_options)
 {
     ASSERT(argv != NULL);
 
     for (int i = 1; i < argc; ++i)
-        for (size_t j = 0; j < N_EXEC_OPTIONS; ++j)
-            if (strcmp(EXEC_OPTIONS[j].strFormLong, argv[i])  == 0 ||
-                strcmp(EXEC_OPTIONS[j].strFormShort, argv[i]) == 0)
+        for (size_t j = 0; j < n_exec_options; ++j)
+            if (strcmp(exec_options[j].strFormLong, argv[i])  == 0 ||
+                strcmp(exec_options[j].strFormShort, argv[i]) == 0)
             {
-                int id = EXEC_OPTIONS[j].optionId;
+                int id = exec_options[j].optionId;
                 if (optionsInd[id])
                     return false;
 
