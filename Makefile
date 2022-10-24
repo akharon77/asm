@@ -12,7 +12,7 @@ cpu: cpu.out
 asm.out: obj/main_asm.o obj/asm.o obj/iostr.o obj/cmds.o
 	$(CXX) $(CXX_FLAGS) $^ -o $@
 
-disasm.out: obj/main_disasm.o obj/cpu.o obj/stack.o obj/cmds.o
+disasm.out: obj/main_disasm.o obj/cpu.o obj/stack.o obj/cmds.o obj/iostr.o
 	$(CXX) $(CXX_FLAGS) $^ -o $@
 
 cpu.out: obj/main_cpu.o obj/cpu.o obj/stack.o obj/iostr.o obj/cmds.o

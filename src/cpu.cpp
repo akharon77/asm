@@ -5,10 +5,11 @@
 
 const Option EXEC_OPTIONS[] = 
     {
-        {"--file", "-f",  INPUT_FILE_OPTION, "from file (default: output.bin)"},
-        {"--help", "-h",  HELP_OPTION,       "show help"},
-        {"--vmem", "-v",  VMEM_OPTION,       "use memory as video-memory"},
-        {"--mem",  "-m",  MEM_OPTION,        "size of memory"}
+        {"--file", "-f", INPUT_FILE_OPTION,  "from file (default: output.bin)"},
+        {"--out",  "-o", OUTPUT_FILE_OPTION, "output to file (default: output.txt)"},
+        {"--help", "-h", HELP_OPTION,        "show help"},
+        {"--vmem", "-v", VMEM_OPTION,        "use memory as video-memory"},
+        {"--mem",  "-m", MEM_OPTION,         "size of memory"}
     };
  
 const size_t N_EXEC_OPTIONS = sizeof(EXEC_OPTIONS) / sizeof(Option);
