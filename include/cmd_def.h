@@ -33,6 +33,13 @@ CMD_DEF(SQRT, ZERO_ARG,
             PUSH(sqrtl(val));
         })
 
+CMD_DEF(INP,  ZERO_ARG,
+        {
+            INC(CMD_FLAGS);
+            VAL_TYPE val = 0;
+            scanf("%d" COMMA &val);
+            PUSH(val);
+        })
 CMD_DEF(OUT,  ZERO_ARG,
         {
             INC(CMD_FLAGS);
