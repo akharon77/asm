@@ -25,34 +25,8 @@ line:
         je line
 
         push rax
-        push 12
-        sub
-        push rax
-        push 12
-        sub
-        mul
-
         push rbx
-        push 35
-        sub
-        push 2
-        div
-        push rbx
-        push 35
-        sub
-        push 2
-        div
-        mul
-
-        add
-
-        push 10000
-        mul
-
-        sqrt
-
-        push 100
-        div
+        call dist
 
         push 10
         sub
@@ -62,21 +36,59 @@ line:
 
         ja col
 
-        push 1
-
         push 80
         push rax
         mul
         push rbx
         add
 
-        pop rdx
-
-        push 1
-
-        pop [rdx]
+        call dot
 
         jmp col
 end:
 
 vmout
+
+hlt
+
+dist:
+    pop [2]
+    pop [1]
+
+    push [1]
+    push 12
+    sub
+    push [1]
+    push 12
+    sub
+    mul
+
+    push [2]
+    push 35
+    sub
+    push 2
+    div
+    push [2]
+    push 35
+    sub
+    push 2
+    div
+    mul
+
+    add
+
+    push 10000
+    mul
+
+    sqrt
+
+    push 100
+    div
+
+    ret
+
+dot:
+    pop rdx
+    push 1
+    pop [rdx]
+    ret

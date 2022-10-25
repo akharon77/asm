@@ -7,6 +7,7 @@
 #include "asm.h"
 #include "cmds.h"
 #include "iostr.h"
+#include "colors.h"
 
 const Option EXEC_OPTIONS[] = 
     {
@@ -100,7 +101,8 @@ void AsmRun(Asm *asmbler)
                     *instr_ptr += BYTES_LBL;                                                                      \
                 }                                                                                                 \
             }                                                                                                     \
-        }
+        }                                                                                                         \
+        else
 
 #define JMP_DEF(name, cond) CMD_DEF(name, LBL_ARG,)
 
@@ -110,6 +112,10 @@ void AsmRun(Asm *asmbler)
         {
             cmd[offset - 1] = '\0';
             AsmLabelUpd(labels_info, cmd, *instr_ptr);
+        }
+        else
+        {
+            printf(RED "Syntax error\n" NORMAL);
         }
 
 #undef CMD_DEF
