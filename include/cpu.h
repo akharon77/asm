@@ -39,7 +39,7 @@ struct Proc
     VAL_TYPE  *mem;
 };
 
-void ProcCtor         (Proc *cpu, int32_t size);
+void ProcCtor         (Proc *cpu, SIZE_TYPE size);
 void ProcDtor         (Proc *cpu);
 void ProcLoadFromFile (Proc *cpu, const char *filename);
 

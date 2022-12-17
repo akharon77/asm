@@ -260,13 +260,13 @@ int32_t AsmArgProcess(const char *str, CMD_FLAGS_TYPE *flags, char *buf, int32_t
     char *plus_ptr = strchr(arg, '+');
     if (plus_ptr != NULL)
     {
-        sscanf(arg + (is_ram ? 1 : 0), "%d+%s", &arg_v, arg_s);
+        sscanf(arg + (is_ram ? 1 : 0), "%ld+%s", &arg_v, arg_s);
         is_reg = true;
         is_val = true;
     }
     else
     {
-        int is_num = sscanf(arg + (is_ram ? 1 : 0), "%d", &arg_v);
+        int is_num = sscanf(arg + (is_ram ? 1 : 0), "%ld", &arg_v);
         if (is_num == 0)
         {
             sscanf(arg + (is_ram ? 1 : 0), "%s", arg_s);

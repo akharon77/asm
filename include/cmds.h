@@ -64,11 +64,11 @@ enum REGS
         var = MEM[var];         \
     }
 
-#define MAX_LABEL_LEN       16
-#define MAX_N_LABELS        64
-#define MAX_N_FIXUPS        128
+#define MAX_LABEL_LEN       64
+#define MAX_N_LABELS        512
+#define MAX_N_FIXUPS        512
 
-#define MAX_PROG_SIZE       1024
+#define MAX_PROG_SIZE       10000
 
 #define BITS_SIZE           32
 #define SIZE_TYPE           int32_t
@@ -89,8 +89,8 @@ enum REGS
 #define CMD_MASK            ((1ull << 8 * BYTES_CMD_CONT) - 1)
 #define FLAGS_MASK          ((1ull << FLAGS_POS_OCCUP) - 1)
 
-#define BITS_VAL            32
-#define VAL_TYPE            int32_t
+#define BITS_VAL            64
+#define VAL_TYPE            int64_t
 #define BYTES_VAL           (BITS_VAL       / 8)
 
 #define BITS_LBL            32

@@ -7,7 +7,7 @@
 #include "iostr.h"
 #include "colors.h"
 
-const int MAX_LINE_LEN = 128;
+const int MAX_LINE_LEN = 256;
 
 ErrorTag ERROR_TAGS[] =
     {

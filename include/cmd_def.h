@@ -36,14 +36,14 @@ CMD_DEF(SQRT, ZERO_ARG,
 CMD_DEF(INP,  ZERO_ARG,
         {
             INC(CMD_FLAGS);
-            VAL_TYPE val = 0;
-            scanf("%d" COMMA &val);
-            PUSH(val);
+            double val = 0;
+            scanf("%lg" COMMA &val);
+            PUSH(val * 100);
         })
 CMD_DEF(OUT,  ZERO_ARG,
         {
             INC(CMD_FLAGS);
-            printf("%d\n" COMMA TOP);
+            printf("%lf\n" COMMA TOP / 100.);
         })
 CMD_DEF(VMOUT, ZERO_ARG,
         {
@@ -144,6 +144,10 @@ CMD_DEF(POP,   ONE_ARG,
             {
                 REGS[ARG(REG)] = pop_val;
                 INC(REG);
+            }
+            else
+            {
+                INC(VAL);
             }
         })
 
