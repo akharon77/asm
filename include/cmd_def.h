@@ -38,12 +38,12 @@ CMD_DEF(INP,  ZERO_ARG,
             INC(CMD_FLAGS);
             double val = 0;
             scanf("%lg" COMMA &val);
-            PUSH(val * 100);
+            PUSH(val * 1000);
         })
 CMD_DEF(OUT,  ZERO_ARG,
         {
             INC(CMD_FLAGS);
-            printf("%lf\n" COMMA TOP / 100.);
+            printf("%.3lf\n" COMMA TOP / 1000.);
         })
 CMD_DEF(VMOUT, ZERO_ARG,
         {
