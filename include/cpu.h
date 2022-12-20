@@ -8,7 +8,7 @@
 const int WIDTH  = 80;
 const int HEIGHT = 24;
 
-const int DEFAULT_MEM_SIZE = 2048;
+const int DEFAULT_MEM_SIZE = 5096;
 
 enum OPTIONS
 {

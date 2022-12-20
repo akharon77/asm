@@ -52,8 +52,8 @@ CMD_DEF(VMOUT, ZERO_ARG,
             {
                 for (int y = 0; y < WIDTH; ++y)
                 {
-                    if (MEM[x * WIDTH + y])
-                        putc('#' COMMA stdout);
+                    if (MEM[REG(RVB) + x * WIDTH + y])
+                        putc(MEM[REG(RVB) + x * WIDTH + y] COMMA stdout);
                     else
                         putc('.' COMMA stdout);
                 }
