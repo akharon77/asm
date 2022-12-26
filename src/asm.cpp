@@ -72,6 +72,9 @@ void AsmRun(Asm *asmbler)
 
         sscanf(text->lines[i].ptr, "%s%n", cmd, &offset);
 
+        if (strchr(text->lines[i].ptr, ';') != NULL)
+            continue;
+
 #define BUF buf
 #define IP  *instr_ptr
 
@@ -390,8 +393,11 @@ void AsmListing(Asm *asmbler, const char *filename)
     int32_t instr_ptr_cmd = 0;
     for (int i = 0; i < text->nlines; ++i)
     {
-        if (text->lines[i].ptr[text->lines[i].len - 1] == ':')
+        if (text->lines[i].ptr[text->lines[i].len - 1] == ':' || strchr(text->lines[i].ptr, ';') != NULL)
+        {
+            dprintf(fd_inp, "%s\n", text->lines[i].ptr);
             continue;
+        }
         char list_line[2 * MAX_LINE_LEN + 1] = "";
 
         int32_t len = AsmLineList(buf, text->lines[i].ptr, &instr_ptr_cmd, list_line, ARG_TYPE[ARG(CMD_CONT)]);
